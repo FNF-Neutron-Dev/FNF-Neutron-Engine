@@ -14,7 +14,6 @@
 --macro include('backend')
 --macro include('frontend')
 --macro include('mobile')
---macro include('Main')
 
 --no-output
 -D doc-gen
