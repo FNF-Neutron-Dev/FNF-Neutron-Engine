@@ -14,8 +14,7 @@ class ConductorPrototype extends FlxState
 	override public function create()
 	{
         tickSound = Paths.sound('Tick');
-        // i haven't added a function for music in Paths yet so
-		FlxG.sound.playMusic("assets/music/Game.ogg");
+		FlxG.sound.playMusic(Paths.getSound("Game", MUSIC));
 		conductor = new BPMConductor(141);
 		conductor.onBeatHit.add((beat:Int) -> {
             tickSound.play();
