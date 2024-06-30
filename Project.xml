@@ -93,7 +93,7 @@
 	<!-- Haxe 4.3.0+: Enable pretty syntax errors and stuff. -->
 	<haxedef name="message.reporting" value="pretty" />
 
-	<!-- Disable dead code elimination for hscript  -->
+	<!-- Disable dead code elimination for hscript -->
 	<haxeflag name="-dce" value="no" />
 
 	<section if="android">
