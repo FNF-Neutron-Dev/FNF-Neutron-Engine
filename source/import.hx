@@ -24,5 +24,5 @@ import sys.io.*;
 import mobile.backend.utils.StorageUtil;
 
 using StringTools;
-using backend.utils.TextUtil;
+using flixel.util.FlxArrayUtil;
 #end
