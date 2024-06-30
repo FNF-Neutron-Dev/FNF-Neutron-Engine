@@ -83,7 +83,7 @@ class StorageUtil
 			trace('File couldn\'t be saved. (${e.message})');
 	}
 
-	#if android
+	#if (android || doc_gen)
 	public static function doPermissionsShit():Void
 	{
 		if (!AndroidPermissions.getGrantedPermissions().contains('android.permission.READ_EXTERNAL_STORAGE')

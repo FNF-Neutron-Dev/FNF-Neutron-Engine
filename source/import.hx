@@ -8,7 +8,7 @@ import flixel.sound.FlxSound;
 import flixel.FlxG;
 import flixel.util.FlxDestroyUtil;
 // Android
-#if android
+#if (android || doc_gen)
 import android.content.Context as AndroidContext;
 import android.widget.Toast as AndroidToast;
 import android.os.Environment as AndroidEnvironment;

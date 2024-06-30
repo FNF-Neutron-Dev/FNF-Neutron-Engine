@@ -18,6 +18,7 @@ class CrashHandler
 		#end
 	}
 
+	@:dox(show)
 	private static function onUncaughtError(e:UncaughtErrorEvent):Void
 	{
 		e.preventDefault();
@@ -79,6 +80,7 @@ class CrashHandler
 	}
 
 	#if cpp
+	@:dox(show)
 	private static function onError(message:Dynamic):Void
 	{
 		throw Std.string(message);

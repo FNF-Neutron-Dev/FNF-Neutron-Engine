@@ -214,6 +214,7 @@ class Paths
 	}
 }
 
+@:dox(hide)
 enum AssetLocation
 {
 	FILE_SYSTEM;

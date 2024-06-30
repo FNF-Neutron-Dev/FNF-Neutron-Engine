@@ -1,6 +1,15 @@
-.DS_Store
+# Pages
+pages
+docs/doc.xml
+
+# VSCode
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
+
+# Haxe
 .haxelib/*
 export/*
+
+# Other
+.DS_Store
