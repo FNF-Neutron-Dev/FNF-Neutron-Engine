@@ -10,14 +10,15 @@ import lime.utils.AssetType;
 // TODO add more functions and comments
 class Paths
 {
-	@:noCompletion static var initialized:Bool = false;
+	@:noCompletion @:dox(show)
+	static var initialized:Bool = false;
 
-	@:noCompletion
+	@:noCompletion @:dox(show)
 	public static function init():Void
 	{
 		if (!initialized)
 		{
-            initialized = true;
+			initialized = true;
 			OpenFLAssets.cache.enabled = true;
 			LimeAssets.cache.enabled = true;
 			OpenFLAssets.cache.setSound('flixel-beep', OpenFLAssets.getSound("flixel/sounds/beep.ogg"));

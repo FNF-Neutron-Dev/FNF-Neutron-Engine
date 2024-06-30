@@ -57,10 +57,10 @@ class BPMConductor extends FlxBasic
 	 */
 	public var onStepHit(default, null):FlxTypedSignal<Int->Void>;
 
-	@:noCompletion
+	@:noCompletion @:dox(show)
 	private var beatDuration:Float = 0;
 
-	@:noCompletion
+	@:noCompletion @:dox(show)
 	private var soundInstance:FlxSound;
 
 	@:noCompletion
