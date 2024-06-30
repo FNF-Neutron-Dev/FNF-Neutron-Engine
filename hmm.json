@@ -11,6 +11,13 @@
       "version": null
     },
     {
+      "name": "hscript",
+      "type": "git",
+      "dir": null,
+      "ref": "master",
+      "url": "https://github.com/FNF-CNE-Devs/hscript-improved"
+    },
+    {
       "name": "hxcpp",
       "type": "git",
       "dir": null,
