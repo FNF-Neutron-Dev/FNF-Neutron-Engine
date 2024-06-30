@@ -9,8 +9,7 @@
 	<!-- _________________________ Engine Customizations _________________________ -->
 
 	<!-- <haxedef name="HAS_VIDEO_PLAYBACK" if="cpp" /> -->
-
-	<haxedef name="HAS_HAXE_SCRIPTING" />
+	<!-- <haxedef name="HAS_HAXE_RUNTIME_SCRIPTING" /> -->
 
 	<!--The flixel preloader is not accurate in Chrome. You can use it regularly if you embed the swf into a html file
 		or you can set the actual size of your file manually at "FlxPreloaderBase-onUpdate-bytesTotal"-->
@@ -46,7 +45,7 @@
 	<haxelib name="openfl" />
 	<!-- We're using hxvlc because it has way less bugs compared to hxCodec and is kept up-to-date with libVLC -->
 	<haxelib name="hxvlc" if="HAS_VIDEO_PLAYBACK" />
-	<haxelib name="hscript" if="HAS_HAXE_SCRIPTING" />
+	<haxelib name="hscript" if="HAS_HAXE_RUNTIME_SCRIPTING" />
 	<haxelib name="extension-androidtools" if="android" />
 
 	<!--In case you want to use the addons package-->
@@ -94,7 +93,7 @@
 	<haxedef name="message.reporting" value="pretty" />
 
 	<!-- Disable dead code elimination for hscript -->
-	<haxeflag name="-dce" value="no" />
+	<haxeflag name="-dce" value="no" if="HAS_HAXE_RUNTIME_SCRIPTING"/>
 
 	<section if="android">
 		<!-- Do whatever you want I'm tired uninstall and install everytime -->
