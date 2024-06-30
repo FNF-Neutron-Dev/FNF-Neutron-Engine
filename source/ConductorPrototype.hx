@@ -1,0 +1,38 @@
+package;
+
+import flixel.sound.FlxSound;
+import flixel.FlxState;
+import flixel.FlxG;
+import backend.music.BPMConductor;
+import backend.assets.Paths;
+
+class ConductorPrototype extends FlxState
+{
+	public var conductor:BPMConductor;
+    public var tickSound:FlxSound;
+
+	override public function create()
+	{
+        tickSound = Paths.sound('Tick');
+        // i haven't added a function for music in Paths yet so
+		FlxG.sound.playMusic("assets/music/Game.ogg");
+		conductor = new BPMConductor(141);
+		conductor.onBeatHit.add((beat:Int) -> {
+            tickSound.play();
+			trace('New beat hit! - $beat');
+		});
+		super.create();
+	}
+
+	override public function update(elapsed:Float)
+	{
+		super.update(elapsed);
+		if(conductor != null)
+		{
+			FlxG.watch.addQuick("curBeat: ", conductor.curBeat);
+			FlxG.watch.addQuick("curStep: ", conductor.curStep);
+			FlxG.watch.addQuick("curDecBeat: ", conductor.curDecBeat);
+			FlxG.watch.addQuick("curDecStep: ", conductor.curDecStep);
+		}
+	}
+}
