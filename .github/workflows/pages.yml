@@ -1,0 +1,37 @@
+name: Github Pages
+on: workflow_dispatch
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+concurrency:
+  group: 'pages'
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@main
+
+      - name: Setup Haxe
+        uses: krdlab/setup-haxe@master
+        with:
+          haxe-version: 4.3.4
+
+      - name: Installing Dependencies
+        run: sudo apt-get update && sudo apt-get install -y rsync libvlc-dev libvlccore-dev
+
+      - name: Installing Haxe Libraries
+        run: |
+          haxelib install hmm --quiet
+          haxelib run hmm install --quiet
+          haxelib install dox --quiet
+
+      - name: Creating Documentation Site
+        run: chmod +x docs/docs.sh && docs/docs.sh
+
+      - name: Deploying With Github Actions
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: pages
