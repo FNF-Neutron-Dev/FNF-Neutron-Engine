@@ -1,8 +1,6 @@
 package backend.music;
 
-import flixel.FlxG;
 import flixel.FlxBasic;
-import flixel.sound.FlxSound;
 import flixel.util.FlxSignal.FlxTypedSignal;
 
 /**
@@ -72,7 +70,7 @@ class BPMConductor extends FlxBasic
      * Constructor to initialize the BPMConductor with a BPM value.
      * @param bpm The beats per minute (BPM) value.
      */
-    public function new(bpm:Int)
+    public function new(bpm:Int):Void
     {
         super();
 
@@ -174,7 +172,7 @@ class BPMConductor extends FlxBasic
     }
 
     @:noCompletion
-    private function _update()
+    private function _update():Void
     {
         update(FlxG.elapsed);
     }

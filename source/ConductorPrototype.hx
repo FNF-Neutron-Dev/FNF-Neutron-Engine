@@ -1,8 +1,6 @@
 package;
 
-import flixel.sound.FlxSound;
 import flixel.FlxState;
-import flixel.FlxG;
 import backend.music.BPMConductor;
 import backend.assets.Paths;
 
@@ -11,7 +9,7 @@ class ConductorPrototype extends FlxState
 	public var conductor:BPMConductor;
     public var tickSound:FlxSound;
 
-	override public function create()
+	override public function create():Void
 	{
         tickSound = Paths.sound('Tick');
 		FlxG.sound.playMusic(Paths.getSound("Game", MUSIC));
@@ -23,7 +21,7 @@ class ConductorPrototype extends FlxState
 		super.create();
 	}
 
-	override public function update(elapsed:Float)
+	override public function update(elapsed:Float):Void
 	{
 		super.update(elapsed);
 		if(conductor != null)

@@ -1,33 +1,29 @@
 package backend.assets;
 
-import flixel.FlxG;
 import flixel.graphics.FlxGraphic;
 import flixel.graphics.frames.FlxAtlasFrames;
-import flixel.sound.FlxSound;
 import haxe.io.Path;
 import openfl.display.BitmapData;
 import openfl.media.Sound;
-import openfl.utils.Assets as OpenFLAssets;
-import lime.utils.Assets as LimeAssets;
 import lime.utils.AssetType;
-#if sys
-import sys.FileSystem;
-import sys.io.File;
-#end
 
 // TODO add more functions and comments
 class Paths
 {
-    @:noCompletion @:allow(Main)
-    private static function init()
+    @:noCompletion static var initialized:Bool = false;
+    @:noCompletion
+    public static function init():Void
     {
+        if (!initialized) {
         OpenFLAssets.cache.enabled = true;
         LimeAssets.cache.enabled = true;
         OpenFLAssets.cache.setSound('flixel-beep', OpenFLAssets.getSound("flixel/sounds/beep.ogg"));
         OpenFLAssets.cache.setBitmapData('flixel-logo', new FlixelLogo(16, 16));
+        } else
+        FlxG.log.warn("[WARNING] Tried to initialize Paths but it's already initialized.");
     }
 
-    public static inline function clearMemory()
+    public static inline function clearMemory():Void
     {
         clearBitmapsCache(true);
         clearSoundCache();
@@ -161,7 +157,7 @@ class Paths
         #end
     }
 
-    public static function clearBitmapsCache(?allBitmaps:Bool = false)
+    public static function clearBitmapsCache(?allBitmaps:Bool = false):Void
     {
         @:privateAccess
         var bitmapCache = FlxG.bitmap._cache;
@@ -193,7 +189,7 @@ class Paths
             OpenFLAssets.cache.setBitmapData('flixel-logo', new FlixelLogo(16, 16));
     }
 
-    public static function clearSoundCache()
+    public static function clearSoundCache():Void
     {
         for(key in LimeAssets.cache.audio.keys())
             OpenFLAssets.cache.removeSound(key);
