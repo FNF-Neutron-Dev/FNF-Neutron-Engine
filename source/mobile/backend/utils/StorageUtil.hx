@@ -30,10 +30,13 @@ class StorageUtil
 
 	public static function mkDirs(directory:String):Void
 	{
-		try {
+		try
+		{
 			if (FileSystem.exists(directory) && FileSystem.isDirectory(directory))
 				return;
-		} catch (e:Exception) {
+		}
+		catch (e:Exception)
+		{
 			trace('Something went wrong while looking at folder. (${e.message})');
 		}
 
@@ -88,8 +91,8 @@ class StorageUtil
 		{
 			AndroidPermissions.requestPermission('READ_EXTERNAL_STORAGE');
 			AndroidPermissions.requestPermission('WRITE_EXTERNAL_STORAGE');
-			FlxG.stage.window.alert('If you accepted the permissions you are all good!' + '\nIf you didn\'t then expect a crash' + '\nPress Ok to see what happens',
-				'Notice!');
+			FlxG.stage.window.alert('If you accepted the permissions you are all good!' + '\nIf you didn\'t then expect a crash'
+				+ '\nPress Ok to see what happens', 'Notice!');
 			if (!AndroidEnvironment.isExternalStorageManager())
 				AndroidSettings.requestSetting('MANAGE_APP_ALL_FILES_ACCESS_PERMISSION');
 		}
@@ -108,17 +111,21 @@ class StorageUtil
 		}
 	}
 
-	public static function checkExternalPaths(?splitStorage = false):Array<String> {
+	public static function checkExternalPaths(?splitStorage = false):Array<String>
+	{
 		var process = new Process('grep -o "/storage/....-...." /proc/mounts | paste -sd \',\'');
 		var paths:String = process.stdout.readAll().toString();
-		if (splitStorage) paths = paths.replace('/storage/', '');
+		if (splitStorage)
+			paths = paths.replace('/storage/', '');
 		return paths.split(',');
 	}
 
-	public static function getExternalDirectory(external:String):String {
+	public static function getExternalDirectory(external:String):String
+	{
 		var daPath:String = '';
 		for (path in checkExternalPaths())
-			if (path.contains(external)) daPath = path;
+			if (path.contains(external))
+				daPath = path;
 
 		daPath = haxe.io.Path.addTrailingSlash(daPath.endsWith("\n") ? daPath.substr(0, daPath.length - 1) : daPath);
 		return daPath;

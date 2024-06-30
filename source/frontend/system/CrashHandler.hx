@@ -8,7 +8,6 @@ import openfl.errors.Error;
  * Crash Handler.
  * @author YoshiCrafter29, Ne_Eo and MAJigsaw77
  */
-
 class CrashHandler
 {
 	public static function init():Void
@@ -26,22 +25,30 @@ class CrashHandler
 		e.stopImmediatePropagation();
 
 		var m:String = e.error;
-		if (Std.isOfType(e.error, Error)) {
+		if (Std.isOfType(e.error, Error))
+		{
 			var err = cast(e.error, Error);
 			m = '${err.message}';
-		} else if (Std.isOfType(e.error, ErrorEvent)) {
+		}
+		else if (Std.isOfType(e.error, ErrorEvent))
+		{
 			var err = cast(e.error, ErrorEvent);
 			m = '${err.text}';
 		}
 		var stack = haxe.CallStack.exceptionStack();
 		var stackLabelArr:Array<String> = [];
 		var stackLabel:String = "";
-		for(e in stack) {
-			switch(e) {
-				case CFunction: stackLabelArr.push("Non-Haxe (C) Function");
-				case Module(c): stackLabelArr.push('Module ${c}');
+		for (e in stack)
+		{
+			switch (e)
+			{
+				case CFunction:
+					stackLabelArr.push("Non-Haxe (C) Function");
+				case Module(c):
+					stackLabelArr.push('Module ${c}');
 				case FilePos(parent, file, line, col):
-					switch(parent) {
+					switch (parent)
+					{
 						case Method(cla, func):
 							stackLabelArr.push('${file.replace('.hx', '')}.$func() [line $line]');
 						case _:

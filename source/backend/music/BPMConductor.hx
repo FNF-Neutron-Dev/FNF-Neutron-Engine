@@ -9,171 +9,171 @@ import flixel.util.FlxSignal.FlxTypedSignal;
  */
 class BPMConductor extends FlxBasic
 {
-    /**
-     * The beats per minute (BPM) value.
-     */
-    public var bpm(default, set):Int;
+	/**
+	 * The beats per minute (BPM) value.
+	 */
+	public var bpm(default, set):Int;
 
-    /**
-     * The current beat count.
-     */
-    public var curBeat(default, null):Int;
-    
-    /**
-     * The current beat count in decimals.
-     */
-    public var curDecBeat(default, null):Float;
+	/**
+	 * The current beat count.
+	 */
+	public var curBeat(default, null):Int;
 
-    /**
-     * The current step count.
-     */
-    public var curStep(default, null):Int;
+	/**
+	 * The current beat count in decimals.
+	 */
+	public var curDecBeat(default, null):Float;
 
-    /**
-     * The current step count.
-     */
-    public var curDecStep(default, null):Float;
+	/**
+	 * The current step count.
+	 */
+	public var curStep(default, null):Int;
 
-    /**
-     * Whether the BPMConductor is running or not.
-     */
-    public var running:Bool;
+	/**
+	 * The current step count.
+	 */
+	public var curDecStep(default, null):Float;
 
-    /**
-     * The FlxSound instance managed by the BPMConductor.
-     */
-    @:isVar
-    public var music(get, set):FlxSound;
+	/**
+	 * Whether the BPMConductor is running or not.
+	 */
+	public var running:Bool;
 
-    /**
-     * Signal dispatched when a beat is hit. 
-     * The signal provides the current beat count.
-     */
-    public var onBeatHit(default, null):FlxTypedSignal<Int->Void>;
-    
-    /**
-     * Signal dispatched when a step is hit. 
-     * The signal provides the current step count.
-     */
-    public var onStepHit(default, null):FlxTypedSignal<Int->Void>;
+	/**
+	 * The FlxSound instance managed by the BPMConductor.
+	 */
+	@:isVar
+	public var music(get, set):FlxSound;
 
-    @:noCompletion
-    private var beatDuration:Float = 0;
+	/**
+	 * Signal dispatched when a beat is hit. 
+	 * The signal provides the current beat count.
+	 */
+	public var onBeatHit(default, null):FlxTypedSignal<Int->Void>;
 
-    @:noCompletion
-    private var soundInstance:FlxSound;
+	/**
+	 * Signal dispatched when a step is hit. 
+	 * The signal provides the current step count.
+	 */
+	public var onStepHit(default, null):FlxTypedSignal<Int->Void>;
 
-    @:noCompletion
-    private var _running:Bool = false;
+	@:noCompletion
+	private var beatDuration:Float = 0;
 
-    /**
-     * Constructor to initialize the BPMConductor with a BPM value.
-     * @param bpm The beats per minute (BPM) value.
-     */
-    public function new(bpm:Int):Void
-    {
-        super();
+	@:noCompletion
+	private var soundInstance:FlxSound;
 
-        // Initialize some variables
-        this.bpm = bpm;
-        onBeatHit = new FlxTypedSignal<Int->Void>();
-        onStepHit = new FlxTypedSignal<Int->Void>();
+	@:noCompletion
+	private var _running:Bool = false;
 
-        running = FlxG.sound.music != null && FlxG.sound.music.playing; // Prevent the conductor from running if FlxG.sound.music isn't playing
-        visible = false; // Prevent useless draw calls
+	/**
+	 * Constructor to initialize the BPMConductor with a BPM value.
+	 * @param bpm The beats per minute (BPM) value.
+	 */
+	public function new(bpm:Int):Void
+	{
+		super();
 
-        FlxG.signals.postUpdate.add(_update);
-    }
+		// Initialize some variables
+		this.bpm = bpm;
+		onBeatHit = new FlxTypedSignal<Int->Void>();
+		onStepHit = new FlxTypedSignal<Int->Void>();
 
-    /**
-     * Attaches a FlxSound instance to the BPMConductor to use instead of FlxG.sound.music.
-     * @param embeddedSound The embedded sound asset to load.
-     * @param loop Whether the sound should loop.
-     */
-    public function attachSound(embeddedSound:flixel.system.FlxAssets.FlxSoundAsset, ?loop:Bool = true):Void
-    {
-        // Pause the conductor
-        running = false;
+		running = FlxG.sound.music != null && FlxG.sound.music.playing; // Prevent the conductor from running if FlxG.sound.music isn't playing
+		visible = false; // Prevent useless draw calls
 
-        // Create a new FlxSound instance
-        soundInstance = new FlxSound();
-        soundInstance.loadEmbedded(embeddedSound, loop);
-        FlxG.sound.defaultSoundGroup.add(soundInstance);
+		FlxG.signals.postUpdate.add(_update);
+	}
 
-        // Start the conductor
-        running = soundInstance.play().playing;
-    }
+	/**
+	 * Attaches a FlxSound instance to the BPMConductor to use instead of FlxG.sound.music.
+	 * @param embeddedSound The embedded sound asset to load.
+	 * @param loop Whether the sound should loop.
+	 */
+	public function attachSound(embeddedSound:flixel.system.FlxAssets.FlxSoundAsset, ?loop:Bool = true):Void
+	{
+		// Pause the conductor
+		running = false;
 
-    override public function update(elapsed:Float)
-    {    
-        if(running && music.playing)
-        {
-            curDecBeat = (music.time / 1000) / beatDuration;
-            curDecStep = curDecBeat * 4;
+		// Create a new FlxSound instance
+		soundInstance = new FlxSound();
+		soundInstance.loadEmbedded(embeddedSound, loop);
+		FlxG.sound.defaultSoundGroup.add(soundInstance);
 
-            var curBeat = Math.floor(curDecBeat);
-            var curStep = Math.floor(curDecStep);
+		// Start the conductor
+		running = soundInstance.play().playing;
+	}
 
-            if(this.curBeat != curBeat)
-                onBeatHit.dispatch(this.curBeat = curBeat);
+	override public function update(elapsed:Float)
+	{
+		if (running && music.playing)
+		{
+			curDecBeat = (music.time / 1000) / beatDuration;
+			curDecStep = curDecBeat * 4;
 
-            if(this.curStep != curStep)
-                onStepHit.dispatch(this.curStep = curStep);
-        }
-        
-        super.update(elapsed);
-    }
+			var curBeat = Math.floor(curDecBeat);
+			var curStep = Math.floor(curDecStep);
 
-    /**
-     * Cleans up the BPMConductor, stopping the thread and destroying the signal.
-     */
-    override public function destroy():Void
-    {
-        running = active = false;
-        // Destroy all the signals
-        onBeatHit.removeAll();
-        onStepHit.removeAll();
-        onBeatHit.destroy();
-        onStepHit.destroy();
-        FlxG.signals.postUpdate.remove(_update);
+			if (this.curBeat != curBeat)
+				onBeatHit.dispatch(this.curBeat = curBeat);
 
-        // Destroy the instance sound if exists
-        if(soundInstance != null)
-        {
-            soundInstance.stop();
-            soundInstance.destroy();
-        }
+			if (this.curStep != curStep)
+				onStepHit.dispatch(this.curStep = curStep);
+		}
 
-        super.destroy();
-    }
+		super.update(elapsed);
+	}
 
-    @:noCompletion
-    private function set_bpm(Value:Int):Int
-    {
-        beatDuration = 60 / Value;
-        return bpm = Value;
-    }
+	/**
+	 * Cleans up the BPMConductor, stopping the thread and destroying the signal.
+	 */
+	override public function destroy():Void
+	{
+		running = active = false;
+		// Destroy all the signals
+		onBeatHit.removeAll();
+		onStepHit.removeAll();
+		onBeatHit.destroy();
+		onStepHit.destroy();
+		FlxG.signals.postUpdate.remove(_update);
 
-    @:noCompletion
-    private function get_music():FlxSound
-    {
-        return soundInstance ?? FlxG.sound.music;
-    }
+		// Destroy the instance sound if exists
+		if (soundInstance != null)
+		{
+			soundInstance.stop();
+			soundInstance.destroy();
+		}
 
-    @:noCompletion
-    private function set_music(Value:FlxSound):FlxSound
-    {
-        if (soundInstance != null)
-            soundInstance = Value;
-        else
-            FlxG.sound.music = Value;
+		super.destroy();
+	}
 
-        return music = Value;
-    }
+	@:noCompletion
+	private function set_bpm(Value:Int):Int
+	{
+		beatDuration = 60 / Value;
+		return bpm = Value;
+	}
 
-    @:noCompletion
-    private function _update():Void
-    {
-        update(FlxG.elapsed);
-    }
+	@:noCompletion
+	private function get_music():FlxSound
+	{
+		return soundInstance ?? FlxG.sound.music;
+	}
+
+	@:noCompletion
+	private function set_music(Value:FlxSound):FlxSound
+	{
+		if (soundInstance != null)
+			soundInstance = Value;
+		else
+			FlxG.sound.music = Value;
+
+		return music = Value;
+	}
+
+	@:noCompletion
+	private function _update():Void
+	{
+		update(FlxG.elapsed);
+	}
 }
