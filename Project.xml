@@ -99,6 +99,13 @@
 	<!-- Disable dead code elimination for hscript -->
 	<!-- <haxeflag name="-dce" value="no" if="HAS_HAXE_RUNTIME_SCRIPTING"/> -->
 
+	<!-- Enable Stack Show on c++ platforms -->
+	<section if="cpp">
+		<haxedef name="HXCPP_CHECK_POINTER" />
+		<haxedef name="HXCPP_STACK_LINE" />
+		<haxedef name="HXCPP_STACK_TRACE" />
+	</section>
+
 	<section if="android">
 		<!-- Do whatever you want I'm tired uninstall and install everytime -->
 		<certificate path="key.keystore" password="neutronengine" alias="neutronengine" alias-password="neutronengine" unless="debug" />

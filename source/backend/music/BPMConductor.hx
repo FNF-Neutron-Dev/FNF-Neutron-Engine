@@ -80,7 +80,7 @@ class BPMConductor extends FlxBasic
 	 * NOTE: If you created the conductor and FlxG.sound.music isn't playing then set `running` to true or call `attachSound`.
 	 * @param bpm The beats per minute (BPM) value of the song that you're aiming to track.
 	 */
-	public function new(bpm:Int)
+	public function new(bpm:Int):Void
 	{
 		super();
 
@@ -115,7 +115,7 @@ class BPMConductor extends FlxBasic
 		running = soundInstance.play().playing;
 	}
 
-	override public function update(elapsed:Float)
+	override public function update(elapsed:Float):Void
 	{
 		if (running && music.playing)
 		{
