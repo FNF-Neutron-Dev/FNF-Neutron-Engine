@@ -1,21 +1,24 @@
 #if !macro
-import openfl.utils.Assets as OpenFLAssets;
+// Lime
 import lime.utils.Assets as LimeAssets;
 import lime.system.System as LimeSystem;
+// OpenFL
+import openfl.utils.Assets as OpenFLAssets;
 import openfl.system.System as OpenFLSystem;
 // Flixel
-import flixel.sound.FlxSound;
-import flixel.FlxG;
 import flixel.util.FlxDestroyUtil;
+import flixel.sound.FlxSound;
+import flixel.util.FlxTimer;
+import flixel.util.FlxColor;
+import flixel.text.FlxText;
+import flixel.FlxSprite;
+import flixel.FlxCamera;
+import flixel.FlxG;
 // Android
 #if (android || doc_gen)
-import android.content.Context as AndroidContext;
-import android.widget.Toast as AndroidToast;
 import android.os.Environment as AndroidEnvironment;
-import android.Permissions as AndroidPermissions;
-import android.Settings as AndroidSettings;
+import android.content.Context as AndroidContext;
 import android.Tools as AndroidTools;
-import android.os.BatteryManager as AndroidBatteryManager;
 #end
 #if sys
 import sys.*;

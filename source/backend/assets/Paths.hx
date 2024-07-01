@@ -2,17 +2,21 @@ package backend.assets;
 
 import flixel.graphics.FlxGraphic;
 import flixel.graphics.frames.FlxAtlasFrames;
+import frontend.system.Log;
 import haxe.io.Path;
 import openfl.display.BitmapData;
 import openfl.media.Sound;
 import lime.utils.AssetType;
 
-// TODO add more functions and comments
+// TODO add more functions
 class Paths
 {
 	@:noCompletion @:dox(show)
-	static var initialized:Bool = false;
+	private static var initialized:Bool = false;
 
+	/**
+	 * Enable the OpenFL/Lime AssetLibrary cache system and Initialize the default fallback assets cache.
+	 */
 	@:noCompletion @:dox(show)
 	public static function init():Void
 	{
@@ -25,9 +29,12 @@ class Paths
 			OpenFLAssets.cache.setBitmapData('flixel-logo', new FlixelLogo(16, 16));
 		}
 		else
-			FlxG.log.warn("[WARNING] Tried to initialize Paths but it's already initialized.");
+			Log.warn("Tried to initialize Paths but it's already initialized.");
 	}
 
+	/**
+	 * Clears everything that has been cached from bitmaps, sounds and fonts.
+	 */
 	public static inline function clearMemory():Void
 	{
 		clearBitmapsCache(true);
@@ -36,6 +43,13 @@ class Paths
 			OpenFLAssets.cache.removeFont(key);
 	}
 
+	/**
+	 * Create and return a `FlxGraphic` object.
+	 * @param key            The name/path of the image in `assets/images/`
+	 * @param shouldPersist  Wethere the graphic should stay in memory even after it has been destroyed or get dumpped instantly.
+	 * @param destroyOnNoUse Wethere the graphic should be destroyed when it's unused or stay.
+	 * @return `FlxGraphic`
+	 */
 	public static function graphic(key:String, ?shouldPersist:Bool = false, ?destroyOnNoUse:Bool = true):FlxGraphic
 	{
 		var bitmap:BitmapData = getBitmapData(key);
@@ -59,12 +73,26 @@ class Paths
 		return graphic;
 	}
 
+	/**
+	 * Cache and return a `FlxSound` object that plays the sound refrenced by `key` in `assets/sounds/`
+	 * @param key    The name/path of the sound in `assets/sounds/`.
+	 * @param volume The volume of the sound.
+	 * @param loop   Wethere the sound should loop or not.
+	 * @return `FlxSound`
+	 */
 	public static inline function sound(key:String, ?volume:Float = 1.0, ?loop:Bool = false):FlxSound
 	{
 		return FlxG.sound.load(getSound(key), volume, loop);
 	}
 
-	inline static public function getSparrowAtlas(key:String, ?shouldPersist:Bool = false, ?destroyOnNoUse:Bool = true):FlxAtlasFrames
+	/**
+	 * Create a `FlxAtlasFrames` for the sprite sheet refrence by `key`.
+	 * @param key            The name/path of the spritesheet in `assets/images/`
+	 * @param shouldPersist  Wethere the spritesheet's graphic should stay in memory even after it has been destroyed or get dumpped instantly.
+	 * @param destroyOnNoUse Wethere the spritesheet's graphic should be destroyed when it's unused or stay.
+	 * @return `FlxAtlasFrames`
+	 */
+	public static function getSparrowAtlas(key:String, ?shouldPersist:Bool = false, ?destroyOnNoUse:Bool = true):FlxAtlasFrames
 	{
 		var graphic:FlxGraphic = graphic(key, shouldPersist, destroyOnNoUse);
 		var xmlPath:String = Path.withExtension(Path.withoutExtension(graphic.key), "xml");
@@ -78,11 +106,16 @@ class Paths
 			xml = File.getContent(xmlPath)
 		#end
 	else
-		FlxG.log.warn("[WARNING] Tried to parse a sparrow atlas sprite sheet but the XML animations file dosen't exist.");
+		Log.warn("Tried to parse a sparrow atlas sprite sheet but the XML animations file dosen't exist.");
 
 		return FlxAtlasFrames.fromSparrow(graphic, xml);
 	}
 
+	/**
+	 * Cache a BitmapData
+	 * @param key The name/path of the bitmap in `assets/images/`
+	 * @return The bitmap that has been cached, or flixel logo if it dosen't exist
+	 */
 	public static function getBitmapData(key:String):BitmapData
 	{
 		var bitmap:BitmapData = null;
@@ -101,34 +134,41 @@ class Paths
 
 		if (bitmap != null)
 		{
+			#if !flash
 			if (bitmap.width > FlxG.bitmap.maxTextureSize || bitmap.height > FlxG.bitmap.maxTextureSize)
-				FlxG.log.warn("[WARNING] The bitmap with the key of '"
+				Log.warn("The bitmap with the key of '"
 					+ assetKey
 					+ "' has a size that's larger than the device's maxTextureSize, Issues drawing the object might happen.");
+			#end
 
 			OpenFLAssets.cache.setBitmapData(assetKey, bitmap);
 		}
 
 		if (location == NONE)
 		{
-			FlxG.log.warn("[WARNING] Tried to load a bitmap with the key of "
-				+ assetKey
-				+ " but it dosen't exist anywhere on the FileSystem or Asset Library.");
+			Log.warn("Tried to load a bitmap with the key of " + assetKey + " but it dosen't exist anywhere on the FileSystem or Asset Library.");
 			bitmap = OpenFLAssets.cache.getBitmapData('flixel-logo');
 		}
 
 		return bitmap;
 	}
 
-	// use AssetType.MUSIC to get audio file from assets/music
-	public static function getSound(key:String, type:AssetType = SOUND):Sound
+	/**
+	 * Cache a openfl `Sound` object refrence by `key`.
+	 * @param key  The name/path of the sound in `assets/sounds/` or `assets/music/`
+	 * @param type Can be either `SOUNDS` or `MUSIC`, if it's `SOUNDS` then `assets/sounds/` will be used to cache the sound, otherwise `assets/music/` is used.
+	 * @return the `Sound` that has been cached, or a flixel beep sound if it dosen't exists.
+	 */
+	public static function getSound(key:String, type:Library = SOUNDS):Sound
 	{
+		if (type != MUSIC && type != SOUNDS)
+		{
+			Log.warn("Tried to play a sound using a library type of " + type.getName() + ", defaulting to SOUNDS");
+			type = SOUNDS;
+		}
+
 		var sound:Sound = null;
-		// i might remake this later because it looks so ass
-		var library:String = type;
-		library = library.toLowerCase();
-		if (type == SOUND)
-			library += "s";
+		var library:String = type.getName().toLowerCase();
 		var assetKey:String = 'assets/$library/$key.ogg';
 		var location:AssetLocation = checkFileLocation(assetKey, library);
 
@@ -147,15 +187,19 @@ class Paths
 
 		if (location == NONE)
 		{
-			FlxG.log.warn("[WARNING] Tried to load a sound with the key of "
-				+ assetKey
-				+ " but it dosen't exist anywhere on the FileSystem or Asset Library.");
+			Log.warn("Tried to load a sound with the key of " + assetKey + " but it dosen't exist anywhere on the FileSystem or Asset Library.");
 			sound = OpenFLAssets.cache.getSound('flixel-beep');
 		}
 
 		return sound;
 	}
 
+	/**
+	 * Checks where the file precisely exists.
+	 * @param path    The path of the file to check for.
+	 * @param library The library to use when checking for the file in the OpenFL/Lime AssetLibrary.
+	 * @return if the file exists in the OpenFL/Lime AssetLibrary, returns `ASSET_LIBRARY`. If it's in the filesystem only, returns `FILE_SYSTEM`. If both, returns `BOTH`, otherwise returns `NONE`.
+	 */
 	public static function checkFileLocation(path:String, ?library:String):AssetLocation
 	{
 		var al:Bool = OpenFLAssets.exists(library == null ? path : '$library:$path');
@@ -175,6 +219,10 @@ class Paths
 		#end
 	}
 
+	/**
+	 * Clears bitmaps cache
+	 * @param allBitmaps Wethere it should clear every bitmap that has been cached so far (including the bitmaps tht should persist) or only what's unused.
+	 */
 	public static function clearBitmapsCache(?allBitmaps:Bool = false):Void
 	{
 		@:privateAccess
@@ -207,7 +255,10 @@ class Paths
 			OpenFLAssets.cache.setBitmapData('flixel-logo', new FlixelLogo(16, 16));
 	}
 
-	public static function clearSoundCache():Void
+	/**
+	 * Clear the cache of every sound that has been cached so far.
+	 */
+	public static inline function clearSoundCache():Void
 	{
 		for (key in LimeAssets.cache.audio.keys())
 			OpenFLAssets.cache.removeSound(key);
@@ -222,6 +273,14 @@ enum AssetLocation
 	ASSET_LIBRARY;
 	BOTH;
 	NONE;
+}
+
+enum Library
+{
+	IMAGES;
+	SOUNDS;
+	MUSIC;
+	DATA;
 }
 
 @:noCompletion @:keep @:bitmap("assets/images/logo/default.png")

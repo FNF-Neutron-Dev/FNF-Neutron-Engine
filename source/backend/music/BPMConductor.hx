@@ -35,17 +35,6 @@ class BPMConductor extends FlxBasic
 	public var curDecStep(default, null):Float;
 
 	/**
-	 * Whether the BPMConductor is running or not.
-	 */
-	public var running:Bool;
-
-	/**
-	 * The FlxSound instance managed by the BPMConductor.
-	 */
-	@:isVar
-	public var music(get, set):FlxSound;
-
-	/**
 	 * Signal dispatched when a beat is hit. 
 	 * The signal provides the current beat count.
 	 */
@@ -57,6 +46,17 @@ class BPMConductor extends FlxBasic
 	 */
 	public var onStepHit(default, null):FlxTypedSignal<Int->Void>;
 
+	/**
+	 * The FlxSound instance managed by the BPMConductor.
+	 */
+	@:isVar
+	public var music(get, set):FlxSound;
+
+	/**
+	 * Whether the BPMConductor is or should be running or not.
+	 */
+	public var running:Bool;
+
 	@:noCompletion @:dox(show)
 	private var beatDuration:Float = 0;
 
@@ -67,10 +67,11 @@ class BPMConductor extends FlxBasic
 	private var _running:Bool = false;
 
 	/**
-	 * Constructor to initialize the BPMConductor with a BPM value.
-	 * @param bpm The beats per minute (BPM) value.
+	 * Construct a new instance with a BPM to follow.
+	 * NOTE: If you created the conductor and FlxG.sound.music isn't playing then set `running` to true or call `attachSound`.
+	 * @param bpm The beats per minute (BPM) value of the song that you're aiming to track.
 	 */
-	public function new(bpm:Int):Void
+	public function new(bpm:Int)
 	{
 		super();
 
@@ -82,6 +83,7 @@ class BPMConductor extends FlxBasic
 		running = FlxG.sound.music != null && FlxG.sound.music.playing; // Prevent the conductor from running if FlxG.sound.music isn't playing
 		visible = false; // Prevent useless draw calls
 
+		// Use a signal so we don't have to add the conductor to a FlxGroup
 		FlxG.signals.postUpdate.add(_update);
 	}
 
@@ -108,12 +110,15 @@ class BPMConductor extends FlxBasic
 	{
 		if (running && music.playing)
 		{
+			// Calculate the decimal beats and steps
 			curDecBeat = (music.time / 1000) / beatDuration;
 			curDecStep = curDecBeat * 4;
 
+			// Floor the decimal beats and steps
 			var curBeat = Math.floor(curDecBeat);
 			var curStep = Math.floor(curDecStep);
 
+			// Adjust the instance's beats and steps and dispatch the signals
 			if (this.curBeat != curBeat)
 				onBeatHit.dispatch(this.curBeat = curBeat);
 
@@ -125,19 +130,17 @@ class BPMConductor extends FlxBasic
 	}
 
 	/**
-	 * Cleans up the BPMConductor, stopping the thread and destroying the signal.
+	 * Cleans up the BPMConductor.
 	 */
 	override public function destroy():Void
 	{
 		running = active = false;
-		// Destroy all the signals
 		onBeatHit.removeAll();
 		onStepHit.removeAll();
 		onBeatHit.destroy();
 		onStepHit.destroy();
 		FlxG.signals.postUpdate.remove(_update);
 
-		// Destroy the instance sound if exists
 		if (soundInstance != null)
 		{
 			soundInstance.stop();

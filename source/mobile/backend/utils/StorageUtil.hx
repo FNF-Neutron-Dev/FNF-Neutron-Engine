@@ -2,6 +2,11 @@ package mobile.backend.utils;
 
 import haxe.io.Path;
 import haxe.Exception;
+#if android
+import android.Permissions as AndroidPermissions;
+import android.widget.Toast as AndroidToast;
+import android.Settings as AndroidSettings;
+#end
 
 /**
  * A storage class for mobile.

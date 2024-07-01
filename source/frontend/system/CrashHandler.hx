@@ -10,7 +10,11 @@ import openfl.errors.Error;
  */
 class CrashHandler
 {
-	public static function init():Void
+	/**
+	 * Initialize the Crash Handler.
+	 */
+    @:allow(Main)
+	private static function init():Void
 	{
 		openfl.Lib.current.loaderInfo.uncaughtErrorEvents.addEventListener(UncaughtErrorEvent.UNCAUGHT_ERROR, onUncaughtError);
 		#if cpp
