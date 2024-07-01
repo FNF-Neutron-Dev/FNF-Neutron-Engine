@@ -13,8 +13,7 @@ class CrashHandler
 	/**
 	 * Initialize the Crash Handler.
 	 */
-    @:allow(Main)
-	private static function init():Void
+	public static function init():Void
 	{
 		openfl.Lib.current.loaderInfo.uncaughtErrorEvents.addEventListener(UncaughtErrorEvent.UNCAUGHT_ERROR, onUncaughtError);
 		#if cpp

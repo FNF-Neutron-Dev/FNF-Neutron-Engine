@@ -275,6 +275,7 @@ enum AssetLocation
 	NONE;
 }
 
+@:dox(hide)
 enum Library
 {
 	IMAGES;
