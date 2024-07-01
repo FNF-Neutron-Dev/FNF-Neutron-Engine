@@ -43,7 +43,6 @@
 	<haxelib name="flixel" />
 	<haxelib name="lime" />
 	<haxelib name="openfl" />
-	<!-- We're using hxvlc because it has way less bugs compared to hxCodec and is kept up-to-date with libVLC -->
 	<haxelib name="hxvlc" if="HAS_VIDEO_PLAYBACK" />
 	<haxelib name="hscript" if="HAS_HAXE_RUNTIME_SCRIPTING" />
 	<haxelib name="extension-androidtools" if="android" />

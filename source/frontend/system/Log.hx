@@ -19,7 +19,7 @@ class Log
 
     /**
      * Logs a error message.
-     * @param content The content of the note.
+     * @param content The content of the error.
      */
     public static function error(content:String)
     {
