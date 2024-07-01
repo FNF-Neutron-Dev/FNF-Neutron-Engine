@@ -47,24 +47,33 @@ class BPMConductor extends FlxBasic
 	public var onStepHit(default, null):FlxTypedSignal<Int->Void>;
 
 	/**
-	 * The FlxSound instance managed by the BPMConductor.
+	 * The `FlxSound` instance that is used in this conductor.
+	 * returns FlxG.sound.music if `soundInstance` is null. `soundInstance` if it isn't.
 	 */
 	@:isVar
 	public var music(get, set):FlxSound;
+
+	/**
+	 * The duration each beat takes in seconds.
+	 */
+	public var beatDuration(default, null):Float = 0;
+
+	/**
+	 * The duration each beat takes in millie seconds.
+	 */
+	public var beatDurationMS(default, null):Float = 0;
 
 	/**
 	 * Whether the BPMConductor is or should be running or not.
 	 */
 	public var running:Bool;
 
-	@:noCompletion @:dox(show)
-	private var beatDuration:Float = 0;
-
+	/**
+	 * A `FlxSound` that can be initialized through the `attacheSound` method to use instead of FlxG.sound.music.
+	 * Use `music` variable to access it.
+	 */
 	@:noCompletion @:dox(show)
 	private var soundInstance:FlxSound;
-
-	@:noCompletion
-	private var _running:Bool = false;
 
 	/**
 	 * Construct a new instance with a BPM to follow.
@@ -100,7 +109,7 @@ class BPMConductor extends FlxBasic
 		// Create a new FlxSound instance
 		soundInstance = new FlxSound();
 		soundInstance.loadEmbedded(embeddedSound, loop);
-		FlxG.sound.defaultSoundGroup.add(soundInstance);
+		FlxG.sound.defaultMusicGroup.add(soundInstance);
 
 		// Start the conductor
 		running = soundInstance.play().playing;
@@ -111,7 +120,7 @@ class BPMConductor extends FlxBasic
 		if (running && music.playing)
 		{
 			// Calculate the decimal beats and steps
-			curDecBeat = (music.time / 1000) / beatDuration;
+			curDecBeat = music.time / beatDuration;
 			curDecStep = curDecBeat * 4;
 
 			// Floor the decimal beats and steps
@@ -143,6 +152,7 @@ class BPMConductor extends FlxBasic
 
 		if (soundInstance != null)
 		{
+			FlxG.sound.defaultMusicGroup.remove(soundInstance);
 			soundInstance.stop();
 			soundInstance.destroy();
 		}
@@ -153,7 +163,8 @@ class BPMConductor extends FlxBasic
 	@:noCompletion
 	private function set_bpm(Value:Int):Int
 	{
-		beatDuration = 60 / Value;
+		beatDurationMS = 60 / Value;
+		beatDuration = beatDurationMS * 1000;
 		return bpm = Value;
 	}
 

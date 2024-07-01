@@ -31,12 +31,17 @@
 	<set name="BUILD_DIR" value="export/debug" if="debug" />
 	<set name="BUILD_DIR" value="export/release" unless="debug" />
 	<source path="source" />
-	<assets path="assets" />
 	
 	<library name="images" preload="true"/>
 	<library name="music" preload="true"/>
 	<library name="sounds" preload="true"/>
 	<library name="data" preload="true"/>
+
+	<!-- <assets path="assets" /> -->
+	<assets path="assets/images" library="images" />
+	<assets path="assets/music" library="music" />
+	<assets path="assets/sounds" library="sounds" />
+	<assets path="assets/data" library="data" />
 
 	<!-- _______________________________ Libraries ______________________________ -->
 
@@ -56,7 +61,7 @@
 	<!-- ______________________________ Haxedefines _____________________________ -->
 
 	<!--Remove the legacy health system-->
-	<haxedef name="FLX_NO_HEALTH" />
+	<!-- <haxedef name="FLX_NO_HEALTH" /> -->
 	
 	<!--Enable the Flixel core recording system-->
 	<!--<haxedef name="FLX_RECORD" />-->
@@ -92,7 +97,7 @@
 	<haxedef name="message.reporting" value="pretty" />
 
 	<!-- Disable dead code elimination for hscript -->
-	<haxeflag name="-dce" value="no" if="HAS_HAXE_RUNTIME_SCRIPTING"/>
+	<!-- <haxeflag name="-dce" value="no" if="HAS_HAXE_RUNTIME_SCRIPTING"/> -->
 
 	<section if="android">
 		<!-- Do whatever you want I'm tired uninstall and install everytime -->
