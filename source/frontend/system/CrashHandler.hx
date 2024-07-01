@@ -5,13 +5,16 @@ import openfl.events.ErrorEvent;
 import openfl.errors.Error;
 
 /**
- * Crash Handler.
+ * Crash Handler class.
+ * Handles uncaught errors and crashes in the application by logging and displaying them.
+ * 
  * @author YoshiCrafter29, Ne_Eo and MAJigsaw77
  */
 class CrashHandler
 {
 	/**
 	 * Initialize the Crash Handler.
+	 * Sets up the uncaught error event listener and critical error handler.
 	 */
 	public static function init():Void
 	{
@@ -21,6 +24,12 @@ class CrashHandler
 		#end
 	}
 
+	/**
+	 * Handles uncaught errors in the application.
+	 * Prevents the default behavior and logs the error message and stack trace.
+	 * 
+	 * @param e The uncaught error event.
+	 */
 	@:dox(show)
 	private static function onUncaughtError(e:UncaughtErrorEvent):Void
 	{
@@ -82,6 +91,11 @@ class CrashHandler
 		LimeSystem.exit(1);
 	}
 
+	/**
+	 * Handles critical errors in C++.
+	 * 
+	 * @param message The error message.
+	 */
 	#if cpp
 	@:dox(show)
 	private static function onError(message:Dynamic):Void

@@ -9,14 +9,26 @@ import android.Settings as AndroidSettings;
 #end
 
 /**
- * A storage class for mobile.
+ * A utility class for handling storage operations on mobile devices.
+ * Provides methods for retrieving storage directories, creating directories, saving content,
+ * and managing permissions.
+ * 
  * @author Mihai Alexandru (M.A. Jigsaw)
  */
 class StorageUtil
 {
 	#if sys
+	/**
+	 * The root directory for the application storage.
+	 */
 	public static final rootDir:String = LimeSystem.applicationStorageDirectory;
 
+	/**
+	 * Retrieves the storage directory path.
+	 *
+	 * @param force If true, forces the storage type retrieval.
+	 * @return The storage directory path.
+	 */
 	public static function getStorageDirectory(?force:Bool = false):String
 	{
 		var daPath:String = Sys.getCwd();
@@ -33,6 +45,11 @@ class StorageUtil
 		return daPath;
 	}
 
+	/**
+	 * Creates directories recursively if they do not exist.
+	 *
+	 * @param directory The path of the directory to create.
+	 */
 	public static function mkDirs(directory:String):Void
 	{
 		try
@@ -68,11 +85,18 @@ class StorageUtil
 						FileSystem.createDirectory(total);
 				}
 				catch (e:Exception)
-					trace('Error while creating folder. (${e.message}');
+					trace('Error while creating folder. (${e.message})');
 			}
 		}
 	}
 
+	/**
+	 * Saves content to a file in the 'saves' directory.
+	 *
+	 * @param fileName The name of the file.
+	 * @param fileExtension The extension of the file.
+	 * @param fileData The content to save in the file.
+	 */
 	public static function saveContent(fileName:String = 'file', fileExtension:String = '.json',
 			fileData:String = 'You forgor to add somethin\' in yo code :3'):Void
 	{
@@ -89,6 +113,9 @@ class StorageUtil
 	}
 
 	#if (android || doc_gen)
+	/**
+	 * Handles Android permissions for external storage.
+	 */
 	public static function doPermissionsShit():Void
 	{
 		if (!AndroidPermissions.getGrantedPermissions().contains('android.permission.READ_EXTERNAL_STORAGE')
@@ -116,6 +143,12 @@ class StorageUtil
 		}
 	}
 
+	/**
+	 * Checks external paths for mounted storage directories.
+	 *
+	 * @param splitStorage If true, splits the storage paths.
+	 * @return An array of external storage paths.
+	 */
 	public static function checkExternalPaths(?splitStorage = false):Array<String>
 	{
 		var process = new Process('grep -o "/storage/....-...." /proc/mounts | paste -sd \',\'');
@@ -125,6 +158,12 @@ class StorageUtil
 		return paths.split(',');
 	}
 
+	/**
+	 * Retrieves the directory path for a specified external storage.
+	 *
+	 * @param external The external storage identifier.
+	 * @return The directory path of the specified external storage.
+	 */
 	public static function getExternalDirectory(external:String):String
 	{
 		var daPath:String = '';
@@ -136,22 +175,39 @@ class StorageUtil
 		return daPath;
 	}
 	#end
+
 	#end
 }
 
-#if android
+#if (android || doc_gen)
+/**
+ * An enum abstract representing different storage types on Android.
+ */
 @:runtimeValue
 enum abstract StorageType(String) from String to String
 {
+	@:dox(hide)
 	final forcedPath = '/storage/emulated/0/';
+	@:dox(hide)
 	final packageNameLocal = 'com.neutrondev.neutronengine';
+	@:dox(hide)
 	final fileLocal = 'Neutron';
 
+	@:dox(hide)
 	var EXTERNAL_DATA = "EXTERNAL_DATA";
+	@:dox(hide)
 	var EXTERNAL_OBB = "EXTERNAL_OBB";
+	@:dox(hide)
 	var EXTERNAL_MEDIA = "EXTERNAL_MEDIA";
+	@:dox(hide)
 	var EXTERNAL = "EXTERNAL";
 
+	/**
+	 * Retrieves the storage type from a string.
+	 *
+	 * @param str The string representing the storage type.
+	 * @return The storage type.
+	 */
 	public static function fromStr(str:String):StorageType
 	{
 		final EXTERNAL_DATA = AndroidContext.getExternalFilesDir();
@@ -169,6 +225,12 @@ enum abstract StorageType(String) from String to String
 		}
 	}
 
+	/**
+	 * Retrieves the forced storage type from a string.
+	 *
+	 * @param str The string representing the storage type.
+	 * @return The forced storage type.
+	 */
 	public static function fromStrForce(str:String):StorageType
 	{
 		final EXTERNAL_DATA = forcedPath + 'Android/data/' + packageNameLocal + '/files';
