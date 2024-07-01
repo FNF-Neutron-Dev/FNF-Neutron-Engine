@@ -1,4 +1,4 @@
-package debug;
+package frontend.system;
 
 import flixel.FlxG;
 import openfl.text.TextField;
@@ -7,9 +7,9 @@ import openfl.system.System as OpenFlSystem;
 import lime.system.System as LimeSystem;
 
 /**
-	The FPS class provides an easy-to-use monitor to display
-	the current frame rate of an OpenFL project
-**/
+ * The FPS class provides an easy-to-use monitor to display the current frame rate of an OpenFL project.
+ * Mostly a fork of psych engine's FPSCounter.
+ */
 #if cpp
 #if windows
 @:cppFileCode('#include <windows.h>')
@@ -40,9 +40,9 @@ class FPSCounter extends TextField
 		super();
 
 		if (LimeSystem.platformName == LimeSystem.platformVersion || LimeSystem.platformVersion == null)
-			os = '\nOS: ${LimeSystem.platformName}' #if cpp + ' ${getArch()}' #end;
+			os = 'OS: ${LimeSystem.platformName}' #if cpp + ' ${getArch()}' #end;
 		else
-			os = '\nOS: ${LimeSystem.platformName}' #if cpp + ' ${getArch()}' #end + ' - ${LimeSystem.platformVersion}';
+			os = 'OS: ${LimeSystem.platformName}' #if cpp + ' ${getArch()}' #end + ' - ${LimeSystem.platformVersion}';
 
 		positionFPS(x, y);
 
@@ -50,9 +50,10 @@ class FPSCounter extends TextField
 		selectable = false;
 		mouseEnabled = false;
 		defaultTextFormat = new TextFormat("_sans", 14, color);
-		width = FlxG.width;
+		width = FlxG.width / 4;
+		height = FlxG.height / 4;
 		multiline = true;
-		text = "FPS: ";
+		text = "FPS: -1\nMemory: 1TB\nOS: Toaster";
 
 		times = [];
 	}
@@ -77,20 +78,25 @@ class FPSCounter extends TextField
 		deltaTimeout += deltaTime;
 	}
 
-	public dynamic function updateText():Void // so people can override it in hscript
+	public dynamic function updateText():Void
 	{
-		text = 
-		'FPS: $currentFPS' + 
-		'\nMemory: ${flixel.util.FlxStringUtil.formatBytes(#if cpp cpp.vm.Gc.memInfo64(cpp.vm.Gc.MEM_INFO_USAGE) #else memoryMegas #end)}' +
-		os;
+		text = 'FPS: $currentFPS\nMemory: ${flixel.util.FlxStringUtil.formatBytes(memoryMegas)}\n$os';
 
 		textColor = 0xFFFFFFFF;
 		if (currentFPS < FlxG.drawFramerate * 0.5)
 			textColor = 0xFFFF0000;
+		else if(currentFPS < FlxG.drawFramerate * 0.25)
+			textColor = 0xFFFFEA00;
 	}
 
 	inline function get_memoryMegas():Float
+	{
+		#if cpp
+		return cpp.vm.Gc.memInfo64(cpp.vm.Gc.MEM_INFO_USAGE);
+		#else
 		return cast(OpenFlSystem.totalMemory, UInt);
+		#end
+	}
 
 	public inline function positionFPS(X:Float, Y:Float, ?scale:Float = 1){
 		scaleX = scaleY = #if android (scale > 1 ? scale : 1) #else (scale < 1 ? scale : 1) #end;

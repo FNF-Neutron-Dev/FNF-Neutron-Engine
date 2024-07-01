@@ -3,14 +3,20 @@ package backend.assets;
 import lime.media.AudioBuffer;
 import flixel.graphics.FlxGraphic;
 import flixel.graphics.frames.FlxAtlasFrames;
-import flixel.system.FlxAssets;
 import haxe.ds.Map;
 import haxe.io.Path;
 import openfl.display.BitmapData;
 import openfl.media.Sound;
 
-// TODO add more functions
+#if cpp
+import cpp.vm.Gc;
+#elseif neko
+import neko.vm.Gc;
+#elseif hl
+import hl.Gc;
+#end
 
+// TODO add more functions
 @:access(lime.utils.Assets)
 @:access(flixel.system.frontEnds.BitmapFrontEnd)
 class Paths
@@ -49,6 +55,13 @@ class Paths
 		clearSoundCache();
 		for (key in LimeAssets.cache.font.keys())
 			OpenFLAssets.cache.removeFont(key);
+
+		OpenFLSystem.gc();
+		#if (cpp || neko || hl)
+		#if !neko Gc.compact(); #end
+		#if hl Gc.dumpMemory(); #end
+		Gc.run(true);
+		#end
 	}
 
 	/**
