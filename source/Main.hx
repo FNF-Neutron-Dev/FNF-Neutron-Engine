@@ -28,8 +28,9 @@ class Main extends Sprite
 		addChild(new FlxGame(1280, 720, #if CONDUCTOR_PORTOTYPE ConductorPrototype #else TitleState #end));
 		addChild(fpsCounter = new FPSCounter(10, 5, 0xFFFFFF));
 
-		FlxG.signals.gameResized.add(function (w, h) {
-			if(fpsCounter != null)
+		FlxG.signals.gameResized.add(function(w, h)
+		{
+			if (fpsCounter != null)
 				fpsCounter.positionFPS(10, 5, Math.min(w / FlxG.width, h / FlxG.height));
 		});
 	}

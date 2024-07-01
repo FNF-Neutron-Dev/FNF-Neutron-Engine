@@ -7,16 +7,12 @@ import haxe.ds.Map;
 import haxe.io.Path;
 import openfl.display.BitmapData;
 import openfl.media.Sound;
-
 #if cpp
 import cpp.vm.Gc;
-#elseif neko
-import neko.vm.Gc;
-#elseif hl
-import hl.Gc;
 #end
 
 // TODO add more functions
+
 @:access(lime.utils.Assets)
 @:access(flixel.system.frontEnds.BitmapFrontEnd)
 class Paths
@@ -57,9 +53,8 @@ class Paths
 			OpenFLAssets.cache.removeFont(key);
 
 		OpenFLSystem.gc();
-		#if (cpp || neko || hl)
-		#if !neko Gc.compact(); #end
-		#if hl Gc.dumpMemory(); #end
+		#if cpp
+		Gc.compact();
 		Gc.run(true);
 		#end
 	}
@@ -210,12 +205,10 @@ class Paths
 
 		if (bitmap != null)
 		{
-			#if !flash
 			if (bitmap.width > FlxG.bitmap.maxTextureSize || bitmap.height > FlxG.bitmap.maxTextureSize)
 				NeutronLogger.warn("The bitmap with the key of '"
 					+ assetKey
 					+ "' has a size that's larger than the device's maxTextureSize, Issues drawing the object might happen.");
-			#end
 
 			bitmapsKeys.set(bitmap, assetsKey);
 			OpenFLAssets.cache.setBitmapData(assetsKey, bitmap);
@@ -358,7 +351,7 @@ class Paths
 	{
 		var libs = LimeAssets.libraries;
 		var assets:Array<String> = [];
-		for(libName in libs.keys())
+		for (libName in libs.keys())
 			assets.push(' $libName - ${libs.get(libName).list(null)}');
 
 		var info = 'Assets Library info:' + assets.join('\n');

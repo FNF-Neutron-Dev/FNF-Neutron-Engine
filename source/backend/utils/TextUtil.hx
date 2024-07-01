@@ -2,5 +2,5 @@ package backend.utils;
 
 class TextUtil
 {
-    // no bitches?
+	// no bitches?
 }
