@@ -116,11 +116,10 @@ class Paths
 
 	/**
 	 * Create and return a `FlxGraphic` object.
-	 * @param key            The name/path of the image in `assets/images/`
-	 * @param shouldPersist  Wethere the graphic should stay in memory or get dumpped instantly when unued.
-	 * @return               A `FlxGraphic` with the bitmap in the path of `key`.
+	 * @param key The name/path of the image in `assets/images/`
+	 * @return    A `FlxGraphic` with the bitmap in the path of `key`.
 	 */
-	public static function graphic(key:String, ?shouldPersist:Bool = true):FlxGraphic
+	public static function graphic(key:String):FlxGraphic
 	{
 		var bitmap:BitmapData = getBitmapData(key);
 		var assetKey:String = bitmapsKeys.get(bitmap);
@@ -129,21 +128,22 @@ class Paths
 			return FlxG.bitmap.get(assetKey);
 
 		var graphic:FlxGraphic = FlxG.bitmap.add(bitmap, false, assetKey);
-		graphic.persist = shouldPersist;
-		graphic.destroyOnNoUse = !shouldPersist;
+		graphic.persist = true;
+		graphic.destroyOnNoUse = false;
 		return graphic;
 	}
 
 	/**
 	 * Cache and return a `FlxSound` object that plays the sound refrenced by `key` in `assets/sounds/`
-	 * @param key    The name/path of the sound in `assets/sounds/`.
-	 * @param volume The volume of the sound.
-	 * @param loop   Wethere the sound should loop or not.
+	 * @param key         The name/path of the sound in `assets/sounds/`.
+	 * @param volume      The volume of the sound.
+	 * @param loop        Wethere the sound should loop.
+	 * @param autoDestroy Wether to destroy this sound when it finishs playing. Leave it to `false` if you want to use this sound instance multiple times.
 	 * @return       A `FlxSound` with the sound of `key`.
 	 */
-	public static inline function sound(key:String, ?volume:Float = 1.0, ?loop:Bool = false):FlxSound
+	public static inline function sound(key:String, ?volume:Float = 1.0, ?loop:Bool = false, autoDestroy:Bool = false):FlxSound
 	{
-		return FlxG.sound.load(getSound(key), volume, loop);
+		return FlxG.sound.load(getSound(key), volume, loop, null, autoDestroy);
 	}
 
 	public static function getContent(key:String, extension:String, ?library:Library)
@@ -168,13 +168,12 @@ class Paths
 
 	/**
 	 * Create a `FlxAtlasFrames` for the sprite sheet refrence by `key`.
-	 * @param key            The name/path of the spritesheet in `assets/images/`
-	 * @param shouldPersist  Wethere the graphic should stay in memory or get dumpped instantly when unused.
-	 * @return               A `FlxAtlasFrames` with the frames of `key`.
+	 * @param key The name/path of the spritesheet in `assets/images/`
+	 * @return    A `FlxAtlasFrames` with the frames of `key`.
 	 */
-	public static function getSparrowAtlas(key:String, ?shouldPersist:Bool = true):FlxAtlasFrames
+	public static function getSparrowAtlas(key:String):FlxAtlasFrames
 	{
-		var graphic:FlxGraphic = graphic(key, shouldPersist);
+		var graphic:FlxGraphic = graphic(key);
 		var xml:String = getContent(key, "xml", getAssetLibrary(graphic.key));
 
 		return FlxAtlasFrames.fromSparrow(graphic, xml);
@@ -188,7 +187,8 @@ class Paths
 	public static function getBitmapData(key:String):BitmapData
 	{
 		var bitmap:BitmapData = null;
-		var assetKey:String = getPath('$key.png', IMAGES);
+		// support for any extension :3
+		var assetKey:String = getPath((Path.extension(key) == null || Path.extension(key) == '') ? '$key.png' : key, IMAGES);
 		var assetsKey:String = stripLibrary(assetKey);
 		var library:String = getLibraryName(IMAGES);
 		var location:AssetLocation = checkFileLocation(assetKey, IMAGES);

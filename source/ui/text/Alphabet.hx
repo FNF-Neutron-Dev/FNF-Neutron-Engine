@@ -270,6 +270,20 @@ class Alphabet extends FlxSpriteGroup
 		active = false;
 		super.destroy();
 	}
+
+	override public function updateHitbox():Void
+	{
+		var frameWidth:Float = 0;
+		var frameHeight:Float = 0;
+		forEachAlive((letter) -> {
+			frameWidth += letter.width / letter.scale.x;
+			frameHeight += letter.height / letter.scale.y;
+		});
+		// width = Math.abs(scale.x) * frameWidth;
+		// height = Math.abs(scale.y) * frameHeight;
+		offset.set(-0.5 * (width - frameWidth), -0.5 * (height - frameHeight));
+		origin.set(frameWidth * 0.5, frameHeight * 0.5);
+	}
 }
 
 ///////////////////////////////////////////

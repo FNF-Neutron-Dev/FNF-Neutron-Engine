@@ -94,6 +94,7 @@ class BPMConductor extends FlxBasic
 
 		// Use a signal so we don't have to add the conductor to a FlxGroup
 		FlxG.signals.postUpdate.add(_update);
+		FlxG.signals.preStateSwitch.add(_destroy);
 	}
 
 	/**
@@ -149,6 +150,7 @@ class BPMConductor extends FlxBasic
 		onBeatHit.destroy();
 		onStepHit.destroy();
 		FlxG.signals.postUpdate.remove(_update);
+		FlxG.signals.preStateSwitch.remove(_destroy);
 
 		if (soundInstance != null)
 		{
@@ -189,5 +191,10 @@ class BPMConductor extends FlxBasic
 	private function _update():Void
 	{
 		update(FlxG.elapsed);
+	}
+
+	public function _destroy()
+	{
+		destroy();
 	}
 }

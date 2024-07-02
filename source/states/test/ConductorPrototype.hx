@@ -1,4 +1,4 @@
-package states.menus;
+package states.test;
 
 import flixel.FlxState;
 import backend.music.BPMConductor;
