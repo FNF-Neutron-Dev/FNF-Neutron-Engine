@@ -52,11 +52,11 @@ class Paths
 		for (key in LimeAssets.cache.font.keys())
 			OpenFLAssets.cache.removeFont(key);
 
-		OpenFLSystem.gc();
 		#if cpp
 		Gc.compact();
-		Gc.run(true);
 		#end
+		OpenFLSystem.gc();
+
 	}
 
 	/**
