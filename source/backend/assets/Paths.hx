@@ -3,24 +3,22 @@ package backend.assets;
 import lime.media.AudioBuffer;
 import flixel.graphics.FlxGraphic;
 import flixel.graphics.frames.FlxAtlasFrames;
-import haxe.ds.Map;
 import haxe.io.Path;
 import openfl.display.BitmapData;
 import openfl.media.Sound;
+import openfl.utils.ByteArray;
 #if cpp
 import cpp.vm.Gc;
 #end
 
 // TODO add more functions
-
 @:access(lime.utils.Assets)
 @:access(flixel.system.frontEnds.BitmapFrontEnd)
+@:access(flixel.sound.FlxSound)
 class Paths
 {
 	@:noCompletion @:dox(show)
 	private static var initialized:Bool = false;
-
-	public static var bitmapsKeys:Map<BitmapData, String> = new Map();
 
 	/**
 	 * Enable the OpenFL/Lime AssetLibrary cache system and Initialize the default fallback assets cache.
@@ -48,9 +46,8 @@ class Paths
 	public static inline function clearMemory():Void
 	{
 		clearBitmapsCache(true);
-		clearSoundCache();
-		for (key in LimeAssets.cache.font.keys())
-			OpenFLAssets.cache.removeFont(key);
+		clearSoundCache(true);
+		OpenFLAssets.cache.clearFont();
 
 		#if cpp
 		Gc.compact();
@@ -122,13 +119,13 @@ class Paths
 	public static function graphic(key:String):FlxGraphic
 	{
 		var bitmap:BitmapData = getBitmapData(key);
-		var assetKey:String = bitmapsKeys.get(bitmap);
+		var assetKey:String = bitmap.key;
 
 		if (FlxG.bitmap.checkCache(assetKey))
 			return FlxG.bitmap.get(assetKey);
 
 		var graphic:FlxGraphic = FlxG.bitmap.add(bitmap, false, assetKey);
-		graphic.persist = true;
+		graphic.persist = false;
 		graphic.destroyOnNoUse = false;
 		return graphic;
 	}
@@ -143,7 +140,7 @@ class Paths
 	 */
 	public static inline function sound(key:String, ?volume:Float = 1.0, ?loop:Bool = false, autoDestroy:Bool = false):FlxSound
 	{
-		return FlxG.sound.load(getSound(key), volume, loop, null, autoDestroy);
+		return FlxG.sound.load(getSound(key, SOUNDS), volume, loop, null, autoDestroy);
 	}
 
 	public static function getContent(key:String, extension:String, ?library:Library)
@@ -188,20 +185,28 @@ class Paths
 	{
 		var bitmap:BitmapData = null;
 		// support for any extension :3
-		var assetKey:String = getPath((Path.extension(key) == null || Path.extension(key) == '') ? '$key.png' : key, IMAGES);
-		var assetsKey:String = stripLibrary(assetKey);
+		var assetPath:String = getPath((Path.extension(key) == null || Path.extension(key) == '') ? '$key.png' : key, IMAGES);
+		var assetKey:String = stripLibrary(assetPath);
 		var library:String = getLibraryName(IMAGES);
 		var location:AssetLocation = checkFileLocation(assetKey, IMAGES);
 
-		if (OpenFLAssets.cache.hasBitmapData((assetsKey)))
-			return OpenFLAssets.cache.getBitmapData(assetsKey);
+		if (OpenFLAssets.cache.hasBitmapData((assetKey)))
+			return OpenFLAssets.cache.getBitmapData(assetKey);
 
+		var bitmapBytes:ByteArray = null;
 		#if sys
 		if (location == FILE_SYSTEM || location == BOTH)
-			bitmap = BitmapData.fromBytes(File.getBytes(assetsKey));
+			bitmapBytes = File.getBytes(assetKey);
 		#end
-		if (location == ASSET_LIBRARY && bitmap == null)
-			bitmap = OpenFLAssets.getBitmapData(assetKey);
+		if ((location == ASSET_LIBRARY || location == BOTH) && bitmapBytes == null)
+			bitmapBytes = OpenFLAssets.getBytes(assetPath);
+		
+		if(bitmapBytes != null)
+		{
+			bitmap = BitmapData.fromBytes(bitmapBytes);
+			bitmapBytes.clear();
+			bitmapBytes = null;
+		}
 
 		if (bitmap != null)
 		{
@@ -210,8 +215,8 @@ class Paths
 					+ assetKey
 					+ "' has a size that's larger than the device's maxTextureSize, Issues drawing the object might happen.");
 
-			bitmapsKeys.set(bitmap, assetsKey);
-			OpenFLAssets.cache.setBitmapData(assetsKey, bitmap);
+			bitmap.key = assetKey;
+			OpenFLAssets.cache.setBitmapData(assetKey, bitmap);
 		}
 
 		if (location == NONE)
@@ -222,7 +227,7 @@ class Paths
 				+ library
 				+ '.');
 			bitmap = OpenFLAssets.cache.getBitmapData('flixel-logo');
-			bitmapsKeys.set(bitmap, 'flixel-logo');
+			bitmap.key = 'flixel-logo';
 		}
 
 		return bitmap;
@@ -244,22 +249,33 @@ class Paths
 
 		var sound:Sound = null;
 		var libraryName:String = getLibraryName(library);
-		var assetKey:String = getPath('$key.ogg', library);
-		var assetsKey:String = stripLibrary(assetKey);
-		var location:AssetLocation = checkFileLocation(assetsKey, library);
+		var assetPath:String = getPath('$key.ogg', library);
+		var assetKey:String = stripLibrary(assetPath);
+		var location:AssetLocation = checkFileLocation(assetKey, library);
 
-		if (OpenFLAssets.cache.hasSound(assetsKey))
-			return OpenFLAssets.cache.getSound(assetsKey);
+		if (OpenFLAssets.cache.hasSound(assetKey))
+			return OpenFLAssets.cache.getSound(assetKey);
 
+		var soundBytes:ByteArray = null;
 		#if sys
 		if (location == FILE_SYSTEM || location == BOTH)
-			sound = Sound.fromAudioBuffer(AudioBuffer.fromBytes(File.getBytes(assetsKey)));
+			soundBytes = File.getBytes(assetKey);
 		#end
-		if (location == ASSET_LIBRARY && sound == null)
-			sound = OpenFLAssets.getSound(assetKey);
+		if ((location == ASSET_LIBRARY || location == BOTH) && soundBytes == null)
+			soundBytes = OpenFLAssets.getBytes(assetPath);
+
+		if(soundBytes != null)
+		{
+			sound = Sound.fromAudioBuffer(AudioBuffer.fromBytes(soundBytes));
+			soundBytes.clear();
+			soundBytes = null;
+		}
 
 		if (sound != null)
-			OpenFLAssets.cache.setSound(assetsKey, sound);
+		{
+			OpenFLAssets.cache.setSound(assetKey, sound);
+			sound.key = assetKey;
+		}
 
 		if (location == NONE)
 		{
@@ -303,15 +319,13 @@ class Paths
 
 	/**
 	 * Clears bitmaps cache
-	 * @param allBitmaps Wethere it should clear every bitmap that has been cached so far (including the bitmaps tht should persist) or only what's unused.
+	 * @param allBitmaps Wethere it should clear every bitmap that has been cached so far (including the bitmaps tht should persist).
 	 */
 	public static function clearBitmapsCache(?allBitmaps:Bool = false):Void
 	{
 		if (allBitmaps)
 		{
-			for (key in bitmapsKeys)
-				OpenFLAssets.cache.clear();
-			bitmapsKeys.clear();
+			OpenFLAssets.cache.clearBitmapData();
 			FlxG.bitmap.clearCache();
 			FlxG.bitmap.reset();
 		}
@@ -319,28 +333,45 @@ class Paths
 		{
 			FlxG.bitmap.clearUnused();
 
-			for (graphic in FlxG.bitmap._cache)
+			for (key in FlxG.bitmap._cache.keys())
 			{
-				var key:String = graphic.key;
 				if (FlxG.bitmap.checkCache(key))
-					FlxG.bitmap.removeIfNoUse(graphic);
+					FlxG.bitmap.removeIfNoUse(FlxG.bitmap.get(key));
 
 				if (!FlxG.bitmap.checkCache(key))
 					OpenFLAssets.cache.removeBitmapData(key);
 			}
 		}
+		OpenFLSystem.gc();
 
 		if (!OpenFLAssets.cache.hasBitmapData('flixel-logo'))
 			OpenFLAssets.cache.setBitmapData('flixel-logo', new FlixelLogo(16, 16));
 	}
 
 	/**
-	 * Clear the cache of every sound that has been cached so far.
+	 * Clear sounds cache
+	 * @param allSounds Wethere it should clear EVERY sound that has been cached so far..
 	 */
-	public static inline function clearSoundCache():Void
+	public static function clearSoundCache(?allSounds:Bool = false):Void
 	{
-		for (key in LimeAssets.cache.audio.keys())
-			OpenFLAssets.cache.removeSound(key);
+		if(allSounds)
+		{
+			OpenFLAssets.cache.clearSound();
+		}
+		else
+		{
+			var soundsToIgnore:Array<String> = [];
+			FlxG.sound.list.forEachAlive((sound:FlxSound) -> soundsToIgnore.push(sound._sound.key));
+			var music:FlxSound = FlxG.sound.music;
+			if(music != null && music._sound != null && !soundsToIgnore.contains(music._sound.key)) soundsToIgnore.push(music._sound.key);
+			
+			for(key in OpenFLAssets.cache.sound.keys())
+			{
+				if(!soundsToIgnore.contains(key))
+					OpenFLAssets.cache.removeSound(key);
+			}
+		}
+
 		OpenFLAssets.cache.setSound('flixel-beep', OpenFLAssets.getSound("flixel/sounds/beep.ogg"));
 	}
 
