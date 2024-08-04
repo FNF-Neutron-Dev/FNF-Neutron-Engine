@@ -93,8 +93,9 @@ class BPMConductor extends FlxBasic
 		visible = false; // Prevent useless draw calls
 
 		// Use a signal so we don't have to add the conductor to a FlxGroup
-		FlxG.signals.postUpdate.add(_update);
-		FlxG.signals.preStateSwitch.add(_destroy);
+		// fuck it, go add it to a FlxGroup.
+		// FlxG.signals.postUpdate.add(_update);
+		// FlxG.signals.preStateSwitch.add(_destroy);
 	}
 
 	/**
@@ -121,7 +122,7 @@ class BPMConductor extends FlxBasic
 		if (running && music.playing)
 		{
 			// Calculate the decimal beats and steps
-			curDecBeat = music.time / beatDuration;
+			curDecBeat = music.time / beatDurationMS;
 			curDecStep = curDecBeat * 4;
 
 			// Floor the decimal beats and steps
@@ -134,6 +135,13 @@ class BPMConductor extends FlxBasic
 
 			if (this.curStep != curStep)
 				onStepHit.dispatch(this.curStep = curStep);
+
+			#if debug
+			FlxG.watch.addQuick("curBeat: ", curBeat);
+			FlxG.watch.addQuick("curStep: ", curStep);
+			FlxG.watch.addQuick("curDecBeat: ", curDecBeat);
+			FlxG.watch.addQuick("curDecStep: ", curDecStep);
+			#end
 		}
 
 		super.update(elapsed);
@@ -144,13 +152,14 @@ class BPMConductor extends FlxBasic
 	 */
 	override public function destroy():Void
 	{
-		running = active = false;
+		for(name in ["curBeat: ", "curStep: ", "curDecBeat: ", "curDecStep: "]) FlxG.watch.removeQuick(name);
+		running = false;
 		onBeatHit.removeAll();
 		onStepHit.removeAll();
 		onBeatHit.destroy();
 		onStepHit.destroy();
-		FlxG.signals.postUpdate.remove(_update);
-		FlxG.signals.preStateSwitch.remove(_destroy);
+		// FlxG.signals.postUpdate.remove(_update);
+		// FlxG.signals.preStateSwitch.remove(_destroy);
 
 		if (soundInstance != null)
 		{
@@ -165,8 +174,8 @@ class BPMConductor extends FlxBasic
 	@:noCompletion
 	private function set_bpm(Value:Int):Int
 	{
-		beatDurationMS = 60 / Value;
-		beatDuration = beatDurationMS * 1000;
+		beatDuration = 60 / Value;
+		beatDurationMS = beatDuration * 1000;
 		return bpm = Value;
 	}
 
@@ -187,14 +196,14 @@ class BPMConductor extends FlxBasic
 		return music = Value;
 	}
 
-	@:noCompletion
-	private function _update():Void
-	{
-		update(FlxG.elapsed);
-	}
+	// @:noCompletion
+	// private function _update():Void
+	// {
+	// 	update(FlxG.elapsed);
+	// }
 
-	public function _destroy()
-	{
-		destroy();
-	}
+	// public function _destroy()
+	// {
+	// 	destroy();
+	// }
 }

@@ -103,6 +103,13 @@
 	<!-- Disable dead code elimination for hscript -->
 	<!-- <haxeflag name="-dce" value="no" if="HAS_HAXE_RUNTIME_SCRIPTING"/> -->
 
+	<section if="desktop">
+		<!--Enable Handle Error-->
+		<haxedef name="openfl_enable_handle_error" if="${openfl &ge; 9.4.0}" />
+		<!--Undefinitions-->
+		<undefine name="openfl-disable-handle-error" if="debug" unless="${openfl &ge; 9.4.0}" />
+	</section>
+	
 	<!-- Enable Stack Show on c++ platforms -->
 	<section if="cpp">
 		<haxedef name="HXCPP_CHECK_POINTER" />
@@ -123,6 +130,14 @@
 		<config:android permission="android.permission.VIBRATE" />
 		<config:android permission="android.permission.ACCESS_NETWORK_STATE" />
 		<config:android permission="android.permission.MANAGE_EXTERNAL_STORAGE" />
+	</section>
+
+	<!-- Mobile's architecture defines used for building. -->
+	<section if="mobile">
+		<architecture exclude="armv7" if="ONLY_ARM64" unless="UNIVERSAL"/>
+		<architecture include="arm64" if="ONLY_ARM64 || UNIVERSAL" />
+		<architecture include="armv7" if="ONLY_ARMV7 || UNIVERSAL" />
+		<architecture exclude="arm64" if="ONLY_ARMV7" unless="UNIVERSAL"/>
 	</section>
 
 	<!-- Flash import fixes for macro -->

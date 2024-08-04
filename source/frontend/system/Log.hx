@@ -10,8 +10,7 @@ class Log
 	 */
 	public static function warn(content:String):Void
 	{
-		// content = "[WARNING] " + content;
-		LimeLogger.warn(content);
+		trace('[WARNING] $content');
 		#if debug
 		FlxG.log.warn(content);
 		#end
@@ -23,9 +22,7 @@ class Log
 	 */
 	public static function error(content:String):Void
 	{
-		// content = "[ERROR] " + content;
-		// Using the error method will throw an exception afaik so we'll stick to print
-		LimeLogger.print("[ERROR]" + content);
+		trace('[ERROR] $content');
 		#if debug
 		FlxG.log.error(content);
 		#end
@@ -37,8 +34,7 @@ class Log
 	 */
 	public static function note(content:String):Void
 	{
-		// content = "[NOTE] " + content;
-		LimeLogger.info(content);
+		trace('[NOTE] $content');
 		#if debug
 		FlxG.log.notice(content);
 		#end

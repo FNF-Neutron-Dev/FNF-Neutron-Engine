@@ -1,7 +1,11 @@
 package states.menus;
 
-import ui.text.Alphabet;
 import backend.music.BPMConductor;
+import cpp.vm.Gc;
+import flixel.util.FlxStringUtil;
+import lime.utils.Log;
+import openfl.filters.ShaderFilter;
+import ui.text.Alphabet;
 
 class TitleState extends FlxState
 {
@@ -20,6 +24,15 @@ class TitleState extends FlxState
 
 	override public function create()
 	{
+		conductor = new BPMConductor(102);
+		add(conductor);
+
+		if (FlxG.sound.music == null || !FlxG.sound.music.playing)
+		{
+			FlxG.sound.playMusic(Paths.getSound('freakyMenu', MUSIC), 0);
+			FlxG.sound.music.fadeIn(4, 0, 0.7);
+		}
+
 		gfDance = new FlxSprite(512, 40);
 		gfDance.frames = Paths.getSparrowAtlas('titlescreen/gfDanceTitle');
 		gfDance.animation.addByIndices('danceLeft', 'gfDance', [30, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], "", 24, false);
@@ -66,15 +79,9 @@ class TitleState extends FlxState
 			add(newgrounds);
 		}
 
-		if (FlxG.sound.music == null || !FlxG.sound.music.playing)
-		{
-			FlxG.sound.playMusic(Paths.getSound('freakyMenu', MUSIC), 0);
-			FlxG.sound.music.fadeIn(4, 0, 0.7);
-		}
-
-		conductor = new BPMConductor(102);
 		conductor.onBeatHit.add(function(curBeat:Int)
 		{
+
 			if (gfDance != null)
 			{
 				if (gfDance.animation.curAnim != null && gfDance.animation.curAnim.name == 'danceLeft')
@@ -118,13 +125,14 @@ class TitleState extends FlxState
 				}
 			}
 		});
+
 		FlxG.sound.music.time = 0;
+		conductor.running = true;
 
 		super.create();
 	}
 
 	var timer:FlxTimer = null;
-
 	override public function update(elapsed:Float):Void
 	{
 		super.update(elapsed);
@@ -142,7 +150,6 @@ class TitleState extends FlxState
 			}
 			else
 			{
-				var target:FlxState = new MainMenuState();
 				if (!transitioning)
 				{
 					@:privateAccess
@@ -153,7 +160,7 @@ class TitleState extends FlxState
 					FlxG.camera.flash(FlxColor.WHITE, 1);
 					Paths.sound('confirmMenu', 0.7, false, true).play();
 					titleText.animation.play('press');
-					timer = new FlxTimer().start(2, (tmr) -> FlxG.switchState(target));
+					timer = new FlxTimer().start(2, (tmr) -> FlxG.switchState(new MainMenuState()));
 					transitioning = true;
 					return;
 				}
@@ -175,8 +182,13 @@ class TitleState extends FlxState
 	private function skipIntro():Void
 	{
 		FlxG.camera.flash(FlxColor.WHITE, 4);
+
 		if (alphabet != null)
-			alphabet.visible = false;
+			alphabet.destroy();
+
+		if (newgrounds != null)
+			newgrounds.destroy();
+
 		initialized = titleText.visible = gfDance.visible = funkinLogo.visible = true;
 	}
 

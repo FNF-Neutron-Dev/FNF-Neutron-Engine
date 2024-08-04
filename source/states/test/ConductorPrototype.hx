@@ -1,13 +1,17 @@
 package states.test;
 
-import flixel.FlxState;
-import backend.music.BPMConductor;
 import backend.assets.Paths;
+import backend.music.BPMConductor;
+import flixel.FlxState;
+import ui.text.Alphabet;
+import ui.text.AlphabetCharacter;
+import ui.text.NewAlphabet;
 
 class ConductorPrototype extends FlxState
 {
 	public var conductor:BPMConductor;
 	public var tickSound:FlxSound;
+	public var alphabet:NewAlphabet;
 
 	override public function create():Void
 	{
@@ -19,18 +23,19 @@ class ConductorPrototype extends FlxState
 			tickSound.play();
 			trace('New beat hit! - $beat');
 		});
+		conductor.running = true;
+		add(conductor);
+
+		bgColor = FlxColor.GRAY;
+
+		alphabet = new NewAlphabet(0, 0, 'Hello World!\nHello Lily!', false);
+		add(alphabet);
+		// alphabet.screenCenter();
 		super.create();
 	}
 
 	override public function update(elapsed:Float):Void
 	{
 		super.update(elapsed);
-		if (conductor != null)
-		{
-			FlxG.watch.addQuick("curBeat: ", conductor.curBeat);
-			FlxG.watch.addQuick("curStep: ", conductor.curStep);
-			FlxG.watch.addQuick("curDecBeat: ", conductor.curDecBeat);
-			FlxG.watch.addQuick("curDecStep: ", conductor.curDecStep);
-		}
 	}
 }

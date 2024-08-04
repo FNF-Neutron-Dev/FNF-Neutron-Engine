@@ -1,9 +1,9 @@
 package backend.assets;
 
-import lime.media.AudioBuffer;
 import flixel.graphics.FlxGraphic;
 import flixel.graphics.frames.FlxAtlasFrames;
 import haxe.io.Path;
+import lime.media.AudioBuffer;
 import openfl.display.BitmapData;
 import openfl.media.Sound;
 import openfl.utils.ByteArray;
@@ -17,27 +17,16 @@ import cpp.vm.Gc;
 @:access(flixel.sound.FlxSound)
 class Paths
 {
-	@:noCompletion @:dox(show)
-	private static var initialized:Bool = false;
-
 	/**
-	 * Enable the OpenFL/Lime AssetLibrary cache system and Initialize the default fallback assets cache.
+	 * Setup the default fallback assets cache.
 	 */
 	@:noCompletion @:dox(show)
-	public static function init():Void
+	public static function setFallbackCache():Void
 	{
-		if (!initialized)
-		{
-			initialized = true;
-			OpenFLAssets.cache.enabled = true;
-			LimeAssets.cache.enabled = true;
+		if (!OpenFLAssets.cache.hasSound('flixel-beep'))
 			OpenFLAssets.cache.setSound('flixel-beep', OpenFLAssets.getSound("flixel/sounds/beep.ogg"));
+		if (!OpenFLAssets.cache.hasBitmapData('flixel-logo'))
 			OpenFLAssets.cache.setBitmapData('flixel-logo', new FlixelLogo(16, 16));
-		}
-		else
-		{
-			NeutronLogger.warn("Tried to initialize Paths but it's already initialized.");
-		}
 	}
 
 	/**
@@ -45,14 +34,13 @@ class Paths
 	 */
 	public static inline function clearMemory():Void
 	{
-		clearBitmapsCache(true);
-		clearSoundCache(true);
+		clearBitmapsCache(true, false);
+		clearSoundCache(true, false);
 		OpenFLAssets.cache.clearFont();
-
+		OpenFLSystem.gc();
 		#if cpp
 		Gc.compact();
 		#end
-		OpenFLSystem.gc();
 
 	}
 
@@ -320,8 +308,10 @@ class Paths
 	/**
 	 * Clears bitmaps cache
 	 * @param allBitmaps Wethere it should clear every bitmap that has been cached so far (including the bitmaps tht should persist).
+	 * @param runGC      Wethere it should run the Garbage Collector to clear memory properly.
+	 * 
 	 */
-	public static function clearBitmapsCache(?allBitmaps:Bool = false):Void
+	public static function clearBitmapsCache(?allBitmaps:Bool = false, ?runGC:Bool = true):Void
 	{
 		if (allBitmaps)
 		{
@@ -342,17 +332,18 @@ class Paths
 					OpenFLAssets.cache.removeBitmapData(key);
 			}
 		}
-		OpenFLSystem.gc();
 
-		if (!OpenFLAssets.cache.hasBitmapData('flixel-logo'))
-			OpenFLAssets.cache.setBitmapData('flixel-logo', new FlixelLogo(16, 16));
+		setFallbackCache();
+		if (runGC)
+			OpenFLSystem.gc();
 	}
 
 	/**
 	 * Clear sounds cache
-	 * @param allSounds Wethere it should clear EVERY sound that has been cached so far..
+	 * @param allSounds Wethere it should clear EVERY sound that has been cached so far.
+	 * @param runGC     Wethere it should run the Garbage Collector to clear memory properly.
 	 */
-	public static function clearSoundCache(?allSounds:Bool = false):Void
+	public static function clearSoundCache(?allSounds:Bool = false, ?runGC:Bool = true):Void
 	{
 		if(allSounds)
 		{
@@ -362,8 +353,12 @@ class Paths
 		{
 			var soundsToIgnore:Array<String> = [];
 			FlxG.sound.list.forEachAlive((sound:FlxSound) -> soundsToIgnore.push(sound._sound.key));
-			var music:FlxSound = FlxG.sound.music;
-			if(music != null && music._sound != null && !soundsToIgnore.contains(music._sound.key)) soundsToIgnore.push(music._sound.key);
+			for (sound in FlxG.sound.defaultSoundGroup.sounds)
+				if (!soundsToIgnore.contains(sound._sound.key))
+					soundsToIgnore.push(sound._sound.key);
+			for (sound in FlxG.sound.defaultMusicGroup.sounds)
+				if (!soundsToIgnore.contains(sound._sound.key))
+					soundsToIgnore.push(sound._sound.key);
 			
 			for(key in OpenFLAssets.cache.sound.keys())
 			{
@@ -372,7 +367,9 @@ class Paths
 			}
 		}
 
-		OpenFLAssets.cache.setSound('flixel-beep', OpenFLAssets.getSound("flixel/sounds/beep.ogg"));
+		setFallbackCache();
+		if (runGC)
+			OpenFLSystem.gc();
 	}
 
 	/**

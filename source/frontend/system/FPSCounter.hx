@@ -1,10 +1,10 @@
 package frontend.system;
 
 import flixel.FlxG;
+import lime.system.System as LimeSystem;
+import openfl.system.System as OpenFlSystem;
 import openfl.text.TextField;
 import openfl.text.TextFormat;
-import openfl.system.System as OpenFlSystem;
-import lime.system.System as LimeSystem;
 
 /**
  * The FPS class provides an easy-to-use monitor to display the current frame rate of an OpenFL project.
@@ -15,7 +15,7 @@ import lime.system.System as LimeSystem;
 @:cppFileCode('#include <windows.h>')
 #elseif (ios || mac)
 @:cppFileCode('#include <mach-o/arch.h>')
-#else
+#elseif (linux || android || wasm)
 @:headerInclude('sys/utsname.h')
 #end
 #end
@@ -84,11 +84,12 @@ class FPSCounter extends TextField
 	{
 		text = 'FPS: $currentFPS\nMemory: ${flixel.util.FlxStringUtil.formatBytes(memoryMegas)}\n$os';
 
-		textColor = 0xFFFFFFFF;
-		if (currentFPS < FlxG.drawFramerate * 0.5)
-			textColor = 0xFFFF0000;
-		else if (currentFPS < FlxG.drawFramerate * 0.25)
+		if (currentFPS < FlxG.drawFramerate / 1.5)
 			textColor = 0xFFFFEA00;
+		else if (currentFPS < FlxG.drawFramerate / 2)
+			textColor = 0xFFFF0000;
+		else
+			textColor = 0xFFFFFFFF;
 	}
 
 	inline function get_memoryMegas():Float
@@ -102,7 +103,7 @@ class FPSCounter extends TextField
 
 	public inline function positionFPS(X:Float, Y:Float, ?scale:Float = 1)
 	{
-		scaleX = scaleY = #if android (scale > 1 ? scale : 1) #else (scale < 1 ? scale : 1) #end;
+		scaleX = scaleY = #if mobile (scale > 1 ? scale : 1) #else (scale < 1 ? scale : 1) #end;
 		x = FlxG.game.x + X;
 		y = FlxG.game.y + Y;
 	}
@@ -116,16 +117,16 @@ class FPSCounter extends TextField
 
 		switch(osInfo.wProcessorArchitecture)
 		{
-			case 9:
-				return ::String("x86_64");
-			case 5:
-				return ::String("ARM");
-			case 12:
-				return ::String("ARM64");
-			case 6:
-				return ::String("IA-64");
 			case 0:
 				return ::String("x86");
+			case 5:
+				return ::String("ARM");
+			case 6:
+				return ::String("IA-64");
+			case 9:
+				return ::String("x86_64");
+			case 12:
+				return ::String("ARM64");
 			default:
 				return ::String("Unknown");
 		}
@@ -135,7 +136,7 @@ class FPSCounter extends TextField
 		const NXArchInfo *archInfo = NXGetLocalArchInfo();
     	return ::String(archInfo == NULL ? "Unknown" : archInfo->name);
 	')
-	#else
+	#elseif (linux || android || wasm) // idk if this work on wasm
 	@:functionCode('
 		struct utsname osInfo{};
 		uname(&osInfo);
