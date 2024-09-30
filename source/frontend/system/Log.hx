@@ -10,7 +10,7 @@ class Log
 	 */
 	public static function warn(content:String):Void
 	{
-		trace('[WARNING] $content');
+		Sys.println('[WARNING] $content');
 		#if debug
 		FlxG.log.warn(content);
 		#end
@@ -22,7 +22,7 @@ class Log
 	 */
 	public static function error(content:String):Void
 	{
-		trace('[ERROR] $content');
+		Sys.println('[ERROR] $content');
 		#if debug
 		FlxG.log.error(content);
 		#end
@@ -34,7 +34,7 @@ class Log
 	 */
 	public static function note(content:String):Void
 	{
-		trace('[NOTE] $content');
+		Sys.println('[NOTE] $content');
 		#if debug
 		FlxG.log.notice(content);
 		#end

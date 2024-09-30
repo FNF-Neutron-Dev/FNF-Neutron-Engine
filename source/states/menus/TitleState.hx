@@ -64,17 +64,16 @@ class TitleState extends FlxState
 			for (arr in Paths.getContent('introText', 'txt', DATA).split('\n'))
 				introText.push(arr.split('--'));
 
-			alphabet = new Alphabet(0, 0, "");
-			alphabet.alignment = Alignment.CENTERED;
+			alphabet = new Alphabet(0, 0, "", true, CENTER);
 			add(alphabet);
 
 			newgrounds = new FlxSprite().loadGraphic(Paths.graphic('titlescreen/newgrounds_logo_animated'), true, 600);
 			newgrounds.animation.add('newgrounds', [0, 1], 4);
 			newgrounds.animation.play('newgrounds');
-			newgrounds.setGraphicSize(Std.int(newgrounds.width * 0.43));
+			newgrounds.setGraphicSize(Std.int(newgrounds.width * 0.38));
 			newgrounds.updateHitbox();
 			newgrounds.screenCenter();
-			newgrounds.y += 220;
+			newgrounds.y += 260;
 			newgrounds.visible = false;
 			add(newgrounds);
 		}
@@ -198,11 +197,8 @@ class TitleState extends FlxState
 		curTextID = 0;
 		alphabet.visible = false;
 		alphabet.text = curText.join('\n');
-		alphabet.updateHitbox();
 		alphabet.screenCenter();
 		alphabet.text = curText[curTextID];
-		alphabet.x += alphabet.width / 2;
-		alphabet.y -= alphabet.height / 2;
 		alphabet.visible = true;
 		curTextID++;
 	}

@@ -22,27 +22,32 @@ import openfl.text.TextFormat;
 class FPSCounter extends TextField
 {
 	/**
-		The current frame rate, expressed using frames-per-second
-	**/
+	 * The current frame rate, expressed using frames-per-second
+	 */
 	public var currentFPS(default, null):Int;
 
 	/**
-		The current memory usage (WARNING: this is NOT your total program memory usage, rather it shows the garbage collector memory)
-	**/
-	public var memoryMegas(get, never):Float;
+	 * The current memory usage (WARNING: this is NOT your total program memory usage, rather it shows the garbage collector memory)
+	 */
+	public var memoryMegas(get, null):Float;
 
-	@:noCompletion private var times:Array<Float>;
+	/**
+	 * The name of the platform that's running the game.
+	 */
+	public var os(get, null):String;
 
-	public var os:String = '';
+	@:noCompletion
+	private var deltaTimeout:Float = 0.0;
+
+	@:noCompletion
+	private var times:Array<Float>;
+
+	@:noCompletion
+	private var nextColor(get, null):FlxColor;
 
 	public function new(x:Float = 10, y:Float = 10, color:Int = 0x000000)
 	{
 		super();
-
-		if (LimeSystem.platformName == LimeSystem.platformVersion || LimeSystem.platformVersion == null)
-			os = 'OS: ${LimeSystem.platformName}' #if cpp + ' ${getArch()}' #end;
-		else
-			os = 'OS: ${LimeSystem.platformName}' #if cpp + ' ${getArch()}' #end + ' - ${LimeSystem.platformVersion}';
 
 		positionFPS(x, y);
 
@@ -56,9 +61,15 @@ class FPSCounter extends TextField
 		text = "FPS: -1\nMemory: 1TB\nOS: Toaster";
 
 		times = [];
+		if (FlxG.signals != null)
+		{
+			FlxG.signals.gameResized.add((w:Int, h:Int) -> positionFPS(10, 5, Math.min(w / FlxG.width, h / FlxG.height)));
+		}
+		else
+		{
+			NeutronLogger.error("Failed to add the screen re-size signal.");
+		}
 	}
-
-	var deltaTimeout:Float = 0.0;
 
 	// Event Handlers
 	private override function __enterFrame(deltaTime:Float):Void
@@ -82,17 +93,20 @@ class FPSCounter extends TextField
 
 	public dynamic function updateText():Void
 	{
-		text = 'FPS: $currentFPS\nMemory: ${flixel.util.FlxStringUtil.formatBytes(memoryMegas)}\n$os';
+		text = 'FPS: $currentFPS\nMemory: ${flixel.util.FlxStringUtil.formatBytes(memoryMegas)}\nOS: $os';
 
-		if (currentFPS < FlxG.drawFramerate / 1.5)
-			textColor = 0xFFFFEA00;
-		else if (currentFPS < FlxG.drawFramerate / 2)
-			textColor = 0xFFFF0000;
-		else
-			textColor = 0xFFFFFFFF;
+		if (textColor != nextColor)
+			textColor = nextColor;
 	}
 
-	inline function get_memoryMegas():Float
+	public inline function positionFPS(X:Float, Y:Float, ?scale:Float = 1)
+	{
+		scaleX = scaleY = #if mobile (scale > 1 ? scale : 1) #else (scale < 1 ? scale : 1) #end;
+		x = FlxG.game.x + X;
+		y = FlxG.game.y + Y;
+	}
+
+	private function get_memoryMegas():Float
 	{
 		#if cpp
 		return cpp.vm.Gc.memInfo64(cpp.vm.Gc.MEM_INFO_USAGE);
@@ -101,11 +115,29 @@ class FPSCounter extends TextField
 		#end
 	}
 
-	public inline function positionFPS(X:Float, Y:Float, ?scale:Float = 1)
+	@:noCompletion
+	private function get_os():String
 	{
-		scaleX = scaleY = #if mobile (scale > 1 ? scale : 1) #else (scale < 1 ? scale : 1) #end;
-		x = FlxG.game.x + X;
-		y = FlxG.game.y + Y;
+		if (LimeSystem.platformName == LimeSystem.platformVersion || LimeSystem.platformVersion == null)
+		{
+			return LimeSystem.platformName #if cpp + ' ' + getArch() #end;
+		}
+		else
+		{
+			return LimeSystem.platformName #if cpp + ' ' + getArch() #end + ' - ${LimeSystem.platformVersion}';
+		}
+	}
+
+	// this seems a bit broken need to look into it later
+	@:noCompletion
+	private function get_nextColor():FlxColor
+	{
+		if (currentFPS > FlxG.drawFramerate / 1.5)
+			return FlxColor.WHITE;
+		else if (currentFPS <= FlxG.drawFramerate / 1.5 && currentFPS > FlxG.drawFramerate / 2)
+			return FlxColor.YELLOW;
+		else
+			return FlxColor.RED;
 	}
 
 	#if cpp

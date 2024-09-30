@@ -7,7 +7,7 @@ import frontend.system.FPSCounter;
 import openfl.display.Sprite;
 import states.menus.TitleState;
 import states.test.ConductorPrototype;
-import ui.text.Alphabet.AlphaCharacter;
+import ui.text.Alphabet;
 
 class Main extends Sprite
 {
@@ -28,17 +28,18 @@ class Main extends Sprite
 		cpp.vm.Gc.enable(true);
 		#end
 		Paths.setFallbackCache();
-		AlphaCharacter.loadAlphabetData();
 
 
 		addChild(new FlxGame(1280, 720, #if CONDUCTOR_PORTOTYPE ConductorPrototype #else TitleState #end));
 		addChild(fpsCounter = new FPSCounter(10, 5, 0xFFFFFF));
 
-		FlxG.signals.gameResized.add(function(width:Int, height:Int)
+		FlxG.signals.preStateCreate.add(state -> @:privateAccess
 		{
-			if (fpsCounter != null)
-				fpsCounter.positionFPS(10, 5, Math.min(width / FlxG.width, height / FlxG.height));
+			for (member in Alphabet.alphabetGroup.members)
+				member.destroy();
+			Alphabet.alphabetGroup.clear();
 		});
+
 		#if android
 		FlxG.android.preventDefaultKeys = [BACK];
 		#end

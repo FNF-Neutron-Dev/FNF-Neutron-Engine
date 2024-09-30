@@ -4,14 +4,12 @@ import backend.assets.Paths;
 import backend.music.BPMConductor;
 import flixel.FlxState;
 import ui.text.Alphabet;
-import ui.text.AlphabetCharacter;
-import ui.text.NewAlphabet;
 
 class ConductorPrototype extends FlxState
 {
 	public var conductor:BPMConductor;
 	public var tickSound:FlxSound;
-	public var alphabet:NewAlphabet;
+	public var alphabet:Alphabet;
 
 	override public function create():Void
 	{
@@ -28,9 +26,9 @@ class ConductorPrototype extends FlxState
 
 		bgColor = FlxColor.GRAY;
 
-		alphabet = new NewAlphabet(0, 0, 'Hello World!\nHello Lily!', false);
+		alphabet = new Alphabet(0, 0, 'Hello World!\nHello Lily!', false, CENTER);
 		add(alphabet);
-		// alphabet.screenCenter();
+		alphabet.screenCenter();
 		super.create();
 	}
 
