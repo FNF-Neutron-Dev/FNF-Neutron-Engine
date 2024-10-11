@@ -1,13 +1,9 @@
 package states.menus;
 
-import backend.music.BPMConductor;
-import cpp.vm.Gc;
-import flixel.util.FlxStringUtil;
-import lime.utils.Log;
-import openfl.filters.ShaderFilter;
+import backend.GameState;
 import ui.text.Alphabet;
 
-class TitleState extends FlxState
+class TitleState extends GameState
 {
 	public static var initialized:Bool = false;
 
@@ -20,17 +16,15 @@ class TitleState extends FlxState
 	var titleText:FlxSprite;
 	var newgrounds:FlxSprite;
 	var alphabet:Alphabet;
-	var conductor:BPMConductor;
 
 	override public function create()
 	{
-		conductor = new BPMConductor(102);
-		add(conductor);
+		conductor.bpm = 102;
 
 		if (FlxG.sound.music == null || !FlxG.sound.music.playing)
 		{
 			FlxG.sound.playMusic(Paths.getSound('freakyMenu', backend.assets.AssetLibrary.MUSIC), 0);
-			FlxG.sound.music.fadeIn(4, 0, 0.7);
+			FlxG.sound.music.pause();
 		}
 
 		gfDance = new FlxSprite(512, 40);
@@ -73,7 +67,7 @@ class TitleState extends FlxState
 			newgrounds.setGraphicSize(Std.int(newgrounds.width * 0.38));
 			newgrounds.updateHitbox();
 			newgrounds.screenCenter();
-			newgrounds.y += 260;
+			newgrounds.y += 190;
 			newgrounds.visible = false;
 			add(newgrounds);
 		}
@@ -103,6 +97,7 @@ class TitleState extends FlxState
 						alphabet.visible = false;
 					case 5:
 						setAlphabetNextText(["Not associated", 'with', "Newgrounds"]);
+						alphabet.y -= 120;
 					case 7:
 						proggressAlphabetText();
 						newgrounds.visible = true;
@@ -124,7 +119,8 @@ class TitleState extends FlxState
 			}
 		});
 
-		FlxG.sound.music.time = 0;
+		FlxG.sound.music.resume();
+		FlxG.sound.music.fadeIn(4, 0, 0.7);
 		conductor.running = true;
 
 		super.create();
@@ -136,9 +132,7 @@ class TitleState extends FlxState
 	{
 		super.update(elapsed);
 
-		var pressedEnter:Bool = FlxG.keys.justPressed.ENTER
-			|| (FlxG.gamepads.firstActive != null && FlxG.gamepads.firstActive.justPressed.A)
-			|| (FlxG.touches.getFirst() != null && FlxG.touches.getFirst().justPressed);
+		var pressedEnter:Bool = controls.ACCEPT.justPressed || (FlxG.touches.getFirst() != null && FlxG.touches.getFirst().justPressed);
 
 		if (pressedEnter)
 		{

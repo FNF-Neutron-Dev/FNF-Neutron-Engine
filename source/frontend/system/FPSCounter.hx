@@ -129,6 +129,7 @@ class FPSCounter extends TextField
 	}
 
 	// this seems a bit broken need to look into it later
+
 	@:noCompletion
 	private function get_nextColor():FlxColor
 	{

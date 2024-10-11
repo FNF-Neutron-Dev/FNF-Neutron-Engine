@@ -7,8 +7,10 @@ import flixel.util.FlxSignal.FlxTypedSignal;
  * A class that manages beat events for a FlxSound object.
  * It triggers events at regular intervals based on the beats per minute (BPM) of the music.
  */
-class BPMConductor extends FlxBasic
+class Conductor extends FlxBasic
 {
+	public static var instance:Conductor;
+
 	/**
 	 * The beats per minute (BPM) value.
 	 */
@@ -64,7 +66,7 @@ class BPMConductor extends FlxBasic
 	public var beatDurationMS(default, null):Float = 0;
 
 	/**
-	 * Whether the BPMConductor is or should be running or not.
+	 * Whether the Conductor is or should be running or not.
 	 */
 	public var running:Bool;
 
@@ -77,29 +79,38 @@ class BPMConductor extends FlxBasic
 
 	/**
 	 * Construct a new instance with a BPM to follow.
-	 * NOTE: If you created the conductor and FlxG.sound.music isn't playing then set `running` to true or call `attachSound`.
+	 * NOTE: If you created the conductor and FlxG.sound.music isn't playing then you ned to set `running` to true or call `attachSound`.
 	 * @param bpm The beats per minute (BPM) value of the song that you're aiming to track.
+	 * @param setToInstance Wether the `instance` should be set to `this` conductor.
 	 */
-	public function new(bpm:Int):Void
+	public function new(bpm:Int, ?setToInstance:Bool = false):Void
 	{
 		super();
 
 		// Initialize some variables
 		this.bpm = bpm;
+
 		onBeatHit = new FlxTypedSignal<Int->Void>();
 		onStepHit = new FlxTypedSignal<Int->Void>();
 
 		running = FlxG.sound.music != null && FlxG.sound.music.playing; // Prevent the conductor from running if FlxG.sound.music isn't playing
 		visible = false; // Prevent useless draw calls
 
-		// Use a signal so we don't have to add the conductor to a FlxGroup
-		// fuck it, go add it to a FlxGroup.
-		// FlxG.signals.postUpdate.add(_update);
-		// FlxG.signals.preStateSwitch.add(_destroy);
+		if (setToInstance)
+		{
+			instance = this;
+			FlxG.signals.preStateSwitch.add(function()
+			{
+				onBeatHit.removeAll();
+				onStepHit.removeAll();
+				running = false;
+				bpm = 1;
+			});
+		}
 	}
 
 	/**
-	 * Attaches a FlxSound instance to the BPMConductor to use instead of FlxG.sound.music.
+	 * Attaches a FlxSound instance to the Conductor to use instead of FlxG.sound.music.
 	 * @param embeddedSound The embedded sound asset to load.
 	 * @param loop Whether the sound should loop.
 	 */
@@ -109,9 +120,7 @@ class BPMConductor extends FlxBasic
 		running = false;
 
 		// Create a new FlxSound instance
-		soundInstance = new FlxSound();
-		soundInstance.loadEmbedded(embeddedSound, loop);
-		FlxG.sound.defaultMusicGroup.add(soundInstance);
+		soundInstance = FlxG.sound.load(embeddedSound, 1.0, loop);
 
 		// Start the conductor
 		running = soundInstance.play().playing;
@@ -148,22 +157,16 @@ class BPMConductor extends FlxBasic
 	}
 
 	/**
-	 * Cleans up the BPMConductor.
+	 * Cleans up the Conductor.
 	 */
 	override public function destroy():Void
 	{
-		for(name in ["curBeat: ", "curStep: ", "curDecBeat: ", "curDecStep: "]) FlxG.watch.removeQuick(name);
 		running = false;
-		onBeatHit.removeAll();
-		onStepHit.removeAll();
 		onBeatHit.destroy();
 		onStepHit.destroy();
-		// FlxG.signals.postUpdate.remove(_update);
-		// FlxG.signals.preStateSwitch.remove(_destroy);
 
 		if (soundInstance != null)
 		{
-			FlxG.sound.defaultMusicGroup.remove(soundInstance);
 			soundInstance.stop();
 			soundInstance.destroy();
 		}
@@ -174,6 +177,7 @@ class BPMConductor extends FlxBasic
 	@:noCompletion
 	private function set_bpm(Value:Int):Int
 	{
+		running = false;
 		beatDuration = 60 / Value;
 		beatDurationMS = beatDuration * 1000;
 		return bpm = Value;
@@ -195,15 +199,4 @@ class BPMConductor extends FlxBasic
 
 		return music = Value;
 	}
-
-	// @:noCompletion
-	// private function _update():Void
-	// {
-	// 	update(FlxG.elapsed);
-	// }
-
-	// public function _destroy()
-	// {
-	// 	destroy();
-	// }
 }

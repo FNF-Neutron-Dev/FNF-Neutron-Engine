@@ -106,9 +106,9 @@
 	<!-- <haxeflag name="-dce" value="no" if="HAS_HAXE_RUNTIME_SCRIPTING"/> -->
 
 	<section if="desktop">
-		<!--Enable Handle Error-->
+		<!-- Enable Handle Error -->
 		<haxedef name="openfl_enable_handle_error" if="${openfl &ge; 9.4.0}" />
-		<!--Undefinitions-->
+		<!-- Undefinitions -->
 		<undefine name="openfl-disable-handle-error" if="debug" unless="${openfl &ge; 9.4.0}" />
 	</section>
 	
@@ -118,6 +118,8 @@
 		<haxedef name="HXCPP_STACK_LINE" />
 		<haxedef name="HXCPP_STACK_TRACE" />
 		<haxedef name="HXCPP_CATCH_SEGV" />
+		<haxedef name="HXCPP_STACK_VARS" />
+		<haxedef name="HXCPP_TELEMETRY " />
 	</section>
 
 	<section if="android">

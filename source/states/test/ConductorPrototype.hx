@@ -2,13 +2,13 @@ package states.test;
 
 import backend.assets.AssetLibrary;
 import backend.assets.Paths;
-import backend.music.BPMConductor;
+import backend.music.Conductor;
 import flixel.FlxState;
 import ui.text.Alphabet;
 
 class ConductorPrototype extends FlxState
 {
-	public var conductor:BPMConductor;
+	public var conductor:Conductor;
 	public var tickSound:FlxSound;
 	public var alphabet:Alphabet;
 
@@ -16,7 +16,7 @@ class ConductorPrototype extends FlxState
 	{
 		tickSound = Paths.sound('Tick');
 		FlxG.sound.playMusic(Paths.getSound("Game", backend.assets.AssetLibrary.MUSIC));
-		conductor = new BPMConductor(141);
+		conductor = new Conductor(141);
 		conductor.onBeatHit.add((beat:Int) ->
 		{
 			tickSound.play();

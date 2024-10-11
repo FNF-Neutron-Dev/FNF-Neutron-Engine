@@ -20,7 +20,7 @@ class CrashHandler
 	{
 		openfl.Lib.current.loaderInfo.uncaughtErrorEvents.addEventListener(UncaughtErrorEvent.UNCAUGHT_ERROR, onUncaughtError);
 		#if cpp
-		untyped __global__.__hxcpp_set_critical_error_handler(onError);
+		untyped __global__.__hxcpp_set_critical_error_handler(onCriticalError);
 		#end
 	}
 
@@ -63,9 +63,9 @@ class CrashHandler
 					switch (parent)
 					{
 						case Method(cla, func):
-							stackLabelArr.push('${file.replace('.hx', '')}.$func() [line $line - column $col]');
+							stackLabelArr.push('${file.replace('.hx', '')}.$func() [line $line]');
 						case _:
-							stackLabelArr.push('${file.replace('.hx', '')} [line $line - column $col]');
+							stackLabelArr.push('${file.replace('.hx', '')} [line $line]');
 					}
 				case LocalFunction(v):
 					stackLabelArr.push('Local Function ${v}');
@@ -74,37 +74,53 @@ class CrashHandler
 			}
 		}
 		stackLabel = stackLabelArr.join('\r\n');
+
 		#if sys
+		saveErrorMessage('$m\n$stackLabel');
+		#end
+
+		Main.alertDialog('$m\n$stackLabel', 'Error!');
+		LimeSystem.exit(1);
+	}
+
+	#if cpp
+	@:dox(show)
+	@:noCompletion
+	private static function onCriticalError(message:String):Void
+	{
+		final log:Array<String> = [];
+
+		if (message != null && message.length > 0)
+			log.push(message);
+
+		log.push(haxe.CallStack.toString(haxe.CallStack.exceptionStack(true)));
+
+		#if sys
+		saveErrorMessage(log.join('\n'), true);
+		#end
+
+		Main.alertDialog(log.join('\n'), 'Critical Error');
+		LimeSystem.exit(1);
+	}
+	#end
+
+	#if sys
+	private static function saveErrorMessage(message:String, ?criticalMessge:Bool = false):Void
+	{
 		try
 		{
 			if (!FileSystem.exists('logs'))
 				FileSystem.createDirectory('logs');
 
-			File.saveContent('logs/' + 'Crash - ' + Date.now().toString().replace(' ', '-').replace(':', "'") + '.txt', '$m\n$stackLabel');
+			File.saveContent('logs/'
+				+ '${criticalMessge ? 'Critical Error' : 'Error'} - '
+				+ Date.now().toString().replace(' ', '-').replace(':', "'")
+				+ '.txt', message);
 		}
 		catch (e:haxe.Exception)
-			trace('Couldn\'t save error message. (${e.message})');
-		#end
-
-		#if (android && !macro)
-		android.Tools.showAlertDialog("Error!", '$m\n$stackLabel', {name: 'ok', func: null});
-		#else
-		FlxG.stage.window.alert('$m\n$stackLabel', "Error!");
-		#end
-
-		LimeSystem.exit(1);
-	}
-
-	/**
-	 * Handles critical errors in C++.
-	 * 
-	 * @param message The error message.
-	 */
-	#if cpp
-	@:dox(show)
-	private static function onError(message:Dynamic):Void
-	{
-		throw Std.string(message);
+		{
+			NeutronLogger.warn('Couldn\'t save error message. (${e.message})');
+		}
 	}
 	#end
 }

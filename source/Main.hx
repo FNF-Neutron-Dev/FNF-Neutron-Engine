@@ -1,18 +1,14 @@
 package;
 
-import backend.assets.AssetLibrary;
-import backend.assets.Paths;
+import backend.InitState;
 import flixel.FlxGame;
-import frontend.system.CrashHandler;
 import frontend.system.FPSCounter;
 import openfl.display.Sprite;
-import states.menus.TitleState;
-import states.test.ConductorPrototype;
-import ui.text.Alphabet;
 
 class Main extends Sprite
 {
 	public static var fpsCounter:FPSCounter;
+	public static var instance:Main;
 
 	public function new():Void
 	{
@@ -24,25 +20,21 @@ class Main extends Sprite
 		// #end
 		Sys.setCwd(StorageUtil.getStorageDirectory());
 		#end
-		CrashHandler.init();
 		#if cpp
 		cpp.vm.Gc.enable(true);
 		#end
-		AssetLibrary.init();
-		Paths.cacheFallbackAssets();
 
-		addChild(new FlxGame(1280, 720, #if CONDUCTOR_PORTOTYPE ConductorPrototype #else TitleState #end));
-		addChild(fpsCounter = new FPSCounter(10, 5, 0xFFFFFF));
+		addChild(new FlxGame(1280, 720, InitState));
 
-		FlxG.signals.preStateCreate.add(state -> @:privateAccess
-		{
-			for (member in Alphabet.alphabetGroup.members)
-				member.destroy();
-			Alphabet.alphabetGroup.clear();
-		});
+		instance = this;
+	}
 
-		#if android
-		FlxG.android.preventDefaultKeys = [BACK];
+	public static function alertDialog(message:String, title:String)
+	{
+		#if (android && !macro)
+		android.Tools.showAlertDialog(title, message, {name: 'ok', func: null});
+		#else
+		FlxG.stage.window.alert(message, title);
 		#end
 	}
 }
