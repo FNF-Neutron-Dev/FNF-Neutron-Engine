@@ -167,9 +167,9 @@ class FPSCounter extends TextField
 	#elseif (ios || mac)
 	@:functionCode('
 		const NXArchInfo *archInfo = NXGetLocalArchInfo();
-    	return ::String(archInfo == NULL ? "Unknown" : archInfo->name);
+		return ::String(archInfo == NULL ? "Unknown" : archInfo->name);
 	')
-	#elseif (linux || android || wasm) // idk if this work on wasm
+	#elseif (linux || android)
 	@:functionCode('
 		struct utsname osInfo{};
 		uname(&osInfo);
