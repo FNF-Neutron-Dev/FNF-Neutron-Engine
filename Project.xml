@@ -4,12 +4,13 @@
 
 	<!-- _________________________ Application Settings _________________________ -->
 
-	<app title="FNF': Neutron Engine" packageName="com.neutrondev.neutronengine" package="com.neutrondev.neutronengine" file="Neutron" main="Main" version="0.0.1" company="NeutronDev" />
+	<app title="FNF': Neutron Engine" file="Neutron" packageName="com.neutrondev.neutronengine" package="com.neutrondev.neutronengine" main="Main" version="0.0.1" company="NeutronDev" />
 
 	<!-- _________________________ Engine Customizations _________________________ -->
 
 	<!-- DO NOT DISABLE THIS, it's there temporarily just to keep this source a bit more organized. we'll use a openfl fork in the future -->
 	<!-- <define name="SHADOW_OPENFL_CLASSES" /> -->
+
 	<!-- <define name="HAS_VIDEO_PLAYBACK" if="cpp" /> -->
 	<!-- <define name="HAS_HAXE_RUNTIME_SCRIPTING" /> -->
 
@@ -37,10 +38,10 @@
 	<set name="BUILD_DIR" value="export/release" unless="debug" />
 	<source path="source" />
 	
-	<library name="images" preload="true"/>
-	<library name="music" preload="true"/>
-	<library name="sounds" preload="true"/>
-	<library name="data" preload="true"/>
+	<library name="images" preload="true" />
+	<library name="music" preload="true" />
+	<library name="sounds" preload="true" />
+	<library name="data" preload="true" />
 
 	<!-- <assets path="assets" /> -->
 	<assets path="assets/images" library="images" />
@@ -87,9 +88,6 @@
 	<!--Disable the Flixel core sound tray-->
 	<!--<haxedef name="FLX_NO_SOUND_TRAY" />-->
 
-	<!--Disable the Flixel sound management code-->
-	<!--<haxedef name="FLX_NO_SOUND_SYSTEM" />-->
-
 	<!--Disable the Flixel core focus lost screen-->
 	<haxedef name="FLX_NO_FOCUS_LOST_SCREEN" />
 
@@ -103,7 +101,7 @@
 	<haxedef name="message.reporting" value="pretty" />
 
 	<!-- Disable dead code elimination for hscript -->
-	<!-- <haxeflag name="-dce" value="no" if="HAS_HAXE_RUNTIME_SCRIPTING"/> -->
+	<haxeflag name="-dce" value="no" if="HAS_HAXE_RUNTIME_SCRIPTING"/>
 
 	<section if="desktop">
 		<!-- Enable Handle Error -->
@@ -112,8 +110,9 @@
 		<undefine name="openfl-disable-handle-error" if="debug" unless="${openfl &ge; 9.4.0}" />
 	</section>
 	
-	<!-- Enable Stack Show on c++ platforms -->
+	<!-- Enable things for Crash Handler on c++ platforms -->
 	<section if="cpp">
+		<haxedef name="HXCPP_DEBUG_LINK" if="release" />
 		<haxedef name="HXCPP_CHECK_POINTER" />
 		<haxedef name="HXCPP_STACK_LINE" />
 		<haxedef name="HXCPP_STACK_TRACE" />
@@ -122,10 +121,7 @@
 		<haxedef name="HXCPP_TELEMETRY " />
 	</section>
 
-	<section if="android">
-		<certificate path="key.keystore" password="neutronengine" alias="neutronengine" alias-password="neutronengine" unless="debug" />
-	</section>
-
+	<certificate path="key.keystore" password="neutronengine" alias="neutronengine" alias-password="neutronengine" if="android" unless="debug" />
 
 	<!-- Flash import fixes for macro -->
 	<haxeflag name="--macro" value="allowPackage('flash')" />
