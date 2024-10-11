@@ -3,8 +3,11 @@ package mobile.backend.utils;
 import haxe.io.Path;
 import haxe.Exception;
 #if (android || doc_gen)
+import android.os.Build.VERSION as AndroidVersion;
+import android.os.Build.VERSION_CODES as AndroidVersionCode;
+import android.content.Context as AndroidContext;
+import android.os.Environment as AndroidEnvironment;
 import android.Permissions as AndroidPermissions;
-import android.widget.Toast as AndroidToast;
 import android.Settings as AndroidSettings;
 #end
 
@@ -46,51 +49,6 @@ class StorageUtil
 	}
 
 	/**
-	 * Creates directories recursively if they do not exist.
-	 *
-	 * @param directory The path of the directory to create.
-	 */
-	public static function mkDirs(directory:String):Void
-	{
-		try
-		{
-			if (FileSystem.exists(directory) && FileSystem.isDirectory(directory))
-				return;
-		}
-		catch (e:Exception)
-		{
-			trace('Something went wrong while looking at folder. (${e.message})');
-		}
-
-		var total:String = '';
-		if (directory.substr(0, 1) == '/')
-			total = '/';
-
-		var parts:Array<String> = directory.split('/');
-		if (parts.length > 0 && parts[0].indexOf(':') > -1)
-			parts.shift();
-
-		for (part in parts)
-		{
-			if (part != '.' && part != '')
-			{
-				if (total != '' && total != '/')
-					total += '/';
-
-				total += part;
-
-				try
-				{
-					if (!FileSystem.exists(total))
-						FileSystem.createDirectory(total);
-				}
-				catch (e:Exception)
-					trace('Error while creating folder. (${e.message})');
-			}
-		}
-	}
-
-	/**
 	 * Saves content to a file in the 'saves' directory.
 	 *
 	 * @param fileName The name of the file.
@@ -116,30 +74,32 @@ class StorageUtil
 	/**
 	 * Handles Android permissions for external storage.
 	 */
-	public static function doPermissionsShit():Void
+	public static function requestPermissionsFromUser():Void
 	{
-		if (!AndroidPermissions.getGrantedPermissions().contains('android.permission.READ_EXTERNAL_STORAGE')
-			&& !AndroidPermissions.getGrantedPermissions().contains('android.permission.WRITE_EXTERNAL_STORAGE'))
-		{
-			AndroidPermissions.requestPermission('READ_EXTERNAL_STORAGE');
-			AndroidPermissions.requestPermission('WRITE_EXTERNAL_STORAGE');
-			FlxG.stage.window.alert('If you accepted the permissions you are all good!' + '\nIf you didn\'t then expect a crash'
-				+ '\nPress Ok to see what happens', 'Notice!');
-			if (!AndroidEnvironment.isExternalStorageManager())
-				AndroidSettings.requestSetting('MANAGE_APP_ALL_FILES_ACCESS_PERMISSION');
-		}
+		if (AndroidVersion.SDK_INT >= AndroidVersionCode.TIRAMISU)
+			AndroidPermissions.requestPermissions(['READ_MEDIA_IMAGES', 'READ_MEDIA_VIDEO', 'READ_MEDIA_AUDIO']);
 		else
+			AndroidPermissions.requestPermissions(['READ_EXTERNAL_STORAGE', 'WRITE_EXTERNAL_STORAGE']);
+
+		if (!AndroidEnvironment.isExternalStorageManager())
 		{
-			try
-			{
-				if (!FileSystem.exists(StorageUtil.getStorageDirectory()))
-					FileSystem.createDirectory(StorageUtil.getStorageDirectory());
-			}
-			catch (e:Dynamic)
-			{
-				FlxG.stage.window.alert('Please create folder to\n' + StorageUtil.getStorageDirectory(true) + '\nPress OK to close the game', 'Error!');
-				LimeSystem.exit(1);
-			}
+			if (AndroidVersion.SDK_INT >= AndroidVersionCode.S)
+				AndroidSettings.requestSetting('REQUEST_MANAGE_MEDIA');
+			AndroidSettings.requestSetting('MANAGE_APP_ALL_FILES_ACCESS_PERMISSION');
+		}
+
+		if ((AndroidVersion.SDK_INT >= AndroidVersionCode.TIRAMISU && !AndroidPermissions.getGrantedPermissions().contains('android.permission.READ_MEDIA_IMAGES')) || (AndroidVersion.SDK_INT < AndroidVersionCode.TIRAMISU && !AndroidPermissions.getGrantedPermissions().contains('android.permission.READ_EXTERNAL_STORAGE')))
+			Main.alertDialog('If you accepted the permissions you are all good!' + '\nIf you didn\'t then expect a crash' + '\nPress OK to see what happens', 'Notice!');
+
+		try
+		{
+			if (!FileSystem.exists(SUtil.getStorageDirectory()))
+				FileSystem.createDirectory(SUtil.getStorageDirectory());
+		}
+		catch (e:Dynamic)
+		{
+			Main.alertDialog('Please create folder to\n' + SUtil.getStorageDirectory(true) + '\nPress OK to close the game', 'Error!');
+			LimeSystem.exit(1);
 		}
 	}
 
