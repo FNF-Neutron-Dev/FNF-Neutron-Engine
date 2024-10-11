@@ -111,7 +111,7 @@ class CrashHandler
 
 	#if sys
 	@:dox(hide)
-	private static function saveErrorMessage(message:String, ?criticalMessge:Bool = false):Void
+	private static function saveErrorMessage(message:String, ?criticalMessage:Bool = false):Void
 	{
 		try
 		{
