@@ -104,7 +104,13 @@ class CrashHandler
 	@:dox(show)
 	private static function onError(message:Dynamic):Void
 	{
-		throw Std.string(message);
+		#if (android && !macro)
+		android.Tools.showAlertDialog("Error!", '$m\n$stackLabel', {name: 'ok', func: null});
+		#else
+		FlxG.stage.window.alert('$m\n$stackLabel', "Error!");
+		#end
+
+		LimeSystem.exit(1);
 	}
 	#end
 }
