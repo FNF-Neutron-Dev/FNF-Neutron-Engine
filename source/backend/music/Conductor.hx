@@ -79,7 +79,7 @@ class Conductor extends FlxBasic
 
 	/**
 	 * Construct a new instance with a BPM to follow.
-	 * NOTE: If you created the conductor and FlxG.sound.music isn't playing then you ned to set `running` to true or call `attachSound`.
+	 * NOTE: If you created the conductor and FlxG.sound.music isn't playing then you need to set `running` to true or call `attachSound`.
 	 * @param bpm The beats per minute (BPM) value of the song that you're aiming to track.
 	 * @param setToInstance Wether the `instance` should be set to `this` conductor.
 	 */
