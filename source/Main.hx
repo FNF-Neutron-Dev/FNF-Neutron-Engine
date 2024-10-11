@@ -15,9 +15,9 @@ class Main extends Sprite
 		super();
 
 		#if mobile
-		// #if android
-		// StorageUtil.doPermissionsShit();
-		// #end
+		#if android
+		StorageUtil.requestPermissionsFromUser();
+		#end
 		Sys.setCwd(StorageUtil.getStorageDirectory());
 		#end
 		#if cpp
