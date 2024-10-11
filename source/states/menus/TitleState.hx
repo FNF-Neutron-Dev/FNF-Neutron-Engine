@@ -29,7 +29,7 @@ class TitleState extends FlxState
 
 		if (FlxG.sound.music == null || !FlxG.sound.music.playing)
 		{
-			FlxG.sound.playMusic(Paths.getSound('freakyMenu', MUSIC), 0);
+			FlxG.sound.playMusic(Paths.getSound('freakyMenu', backend.assets.AssetLibrary.MUSIC), 0);
 			FlxG.sound.music.fadeIn(4, 0, 0.7);
 		}
 
@@ -61,7 +61,7 @@ class TitleState extends FlxState
 		{
 			titleText.visible = funkinLogo.visible = gfDance.visible = false;
 
-			for (arr in Paths.getContent('introText', 'txt', DATA).split('\n'))
+			for (arr in Paths.getContent('introText', 'txt', backend.assets.AssetLibrary.DATA).split('\n'))
 				introText.push(arr.split('--'));
 
 			alphabet = new Alphabet(0, 0, "", true, CENTER);
@@ -80,7 +80,6 @@ class TitleState extends FlxState
 
 		conductor.onBeatHit.add(function(curBeat:Int)
 		{
-
 			if (gfDance != null)
 			{
 				if (gfDance.animation.curAnim != null && gfDance.animation.curAnim.name == 'danceLeft')
@@ -132,6 +131,7 @@ class TitleState extends FlxState
 	}
 
 	var timer:FlxTimer = null;
+
 	override public function update(elapsed:Float):Void
 	{
 		super.update(elapsed);

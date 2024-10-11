@@ -1,5 +1,6 @@
 package states.test;
 
+import backend.assets.AssetLibrary;
 import backend.assets.Paths;
 import backend.music.BPMConductor;
 import flixel.FlxState;
@@ -14,7 +15,7 @@ class ConductorPrototype extends FlxState
 	override public function create():Void
 	{
 		tickSound = Paths.sound('Tick');
-		FlxG.sound.playMusic(Paths.getSound("Game", MUSIC));
+		FlxG.sound.playMusic(Paths.getSound("Game", backend.assets.AssetLibrary.MUSIC));
 		conductor = new BPMConductor(141);
 		conductor.onBeatHit.add((beat:Int) ->
 		{

@@ -1,5 +1,6 @@
 package;
 
+import backend.assets.AssetLibrary;
 import backend.assets.Paths;
 import flixel.FlxGame;
 import frontend.system.CrashHandler;
@@ -27,8 +28,7 @@ class Main extends Sprite
 		#if cpp
 		cpp.vm.Gc.enable(true);
 		#end
-		Paths.setFallbackCache();
-
+		Paths.cacheFallbackAssets();
 
 		addChild(new FlxGame(1280, 720, #if CONDUCTOR_PORTOTYPE ConductorPrototype #else TitleState #end));
 		addChild(fpsCounter = new FPSCounter(10, 5, 0xFFFFFF));
@@ -43,5 +43,9 @@ class Main extends Sprite
 		#if android
 		FlxG.android.preventDefaultKeys = [BACK];
 		#end
+
+		for (callback in Library.initCallBacks)
+			callback();
+		Library.initCallBacks = null;
 	}
 }

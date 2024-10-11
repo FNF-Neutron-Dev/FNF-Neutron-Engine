@@ -1,5 +1,8 @@
 package backend.assets;
 
+import backend.assets.AssetLibrary as NuetronAssetLibrary;
+import backend.assets.AssetLibrary.Library;
+import backend.assets.Assets;
 import flixel.graphics.FlxGraphic;
 import flixel.graphics.frames.FlxAtlasFrames;
 import haxe.io.Path;
@@ -12,16 +15,20 @@ import cpp.vm.Gc;
 #end
 
 // TODO add more functions
+
 @:access(lime.utils.Assets)
 @:access(flixel.system.frontEnds.BitmapFrontEnd)
 @:access(flixel.sound.FlxSound)
+/**
+ * Helper class for caching assets and retriving them.
+ */
 class Paths
 {
 	/**
 	 * Setup the default fallback assets cache.
 	 */
 	@:noCompletion @:dox(show)
-	public static function setFallbackCache():Void
+	public static function cacheFallbackAssets():Void
 	{
 		if (!OpenFLAssets.cache.hasSound('flixel-beep'))
 			OpenFLAssets.cache.setSound('flixel-beep', OpenFLAssets.getSound("flixel/sounds/beep.ogg"));
@@ -41,62 +48,6 @@ class Paths
 		#if cpp
 		Gc.compact();
 		#end
-
-	}
-
-	/**
-	 * @param path    The path to look up in `library`.
-	 * @param library The library to use.
-	 * @return        Returns `path` in the specified `library`.
-	 */
-	public static function getPath(path:String, ?library:Library):String
-	{
-		if (library == null)
-			return 'assets/$path';
-
-		var libName:String = library.getName().toLowerCase();
-		return '$libName:assets/$libName/$path';
-	}
-
-	/**
-	 * Removes the library from a path.
-	 * @param path The path to remove the library from.
-	 * @return     The path without the library.
-	 */
-	public static inline function stripLibrary(path:String):String
-	{
-		if (path.contains(':'))
-			return path.split(':')[1];
-		return path;
-	}
-
-	/**
-	 * Get the `Library` of a Asset
-	 * @param path The path of the Asset
-	 * @return     The `Library` that contains `path`
-	 */
-	public static function getAssetLibrary(path:String):Library
-	{
-		for (library in Library.createAll())
-		{
-			var libraryName = library.getName().toLowerCase();
-			if (LimeAssets.exists('$libraryName:$path'))
-				return library;
-		}
-
-		return null;
-	}
-
-	/**
-	 * Get the `Library` as a `String`
-	 * @param library The `Library` to transform.
-	 * @return        `library` as a lowercase string.
-	 */
-	public static inline function getLibraryName(library:Library):String
-	{
-		if (library == null)
-			return null;
-		return library.getName().toLowerCase();
 	}
 
 	/**
@@ -128,27 +79,26 @@ class Paths
 	 */
 	public static inline function sound(key:String, ?volume:Float = 1.0, ?loop:Bool = false, autoDestroy:Bool = false):FlxSound
 	{
-		return FlxG.sound.load(getSound(key, SOUNDS), volume, loop, null, autoDestroy);
+		return FlxG.sound.load(getSound(key, NuetronAssetLibrary.SOUNDS), volume, loop, null, autoDestroy);
 	}
 
 	public static function getContent(key:String, extension:String, ?library:Library)
 	{
-		var file:String = getPath(Path.withExtension(key, extension), library);
-		var libraryName:String = getLibraryName(library);
-		var location:AssetLocation = checkFileLocation(file, library);
+		var file:String = Assets.getPath(Path.withExtension(key, extension), library);
+		var location:AssetLocation = Assets.checkFileLocation(file, library);
 
 		#if sys
 		if (location == FILE_SYSTEM || location == BOTH)
-			return File.getContent(stripLibrary(file));
+			return File.getContent(Assets.stripLibrary(file));
 		#end
 
 		if (location == ASSET_LIBRARY)
 			return OpenFLAssets.getText(file);
 
 		if (location == NONE)
-			NeutronLogger.warn('Tried to get the content of a text file from $file${libraryName == null ? ' in the library $libraryName' : ""} but it dosen\'t exist anywhere on the FileSystem or AssetLibrary');
+			NeutronLogger.warn('Tried to get the content of a text file from $file${library.name == null ? ' in the library ${library.name}' : ""} but it dosen\'t exist anywhere on the FileSystem or AssetLibrary');
 
-		return "null";
+		return "EOF";
 	}
 
 	/**
@@ -159,7 +109,7 @@ class Paths
 	public static function getSparrowAtlas(key:String):FlxAtlasFrames
 	{
 		var graphic:FlxGraphic = graphic(key);
-		var xml:String = getContent(key, "xml", getAssetLibrary(graphic.key));
+		var xml:String = getContent(key, "xml", Assets.getAssetLibrary(graphic.key));
 
 		return FlxAtlasFrames.fromSparrow(graphic, xml);
 	}
@@ -169,54 +119,37 @@ class Paths
 	 * @param key The name/path of the bitmap in `assets/images/`
 	 * @return    The bitmap that has been cached, or flixel logo if it dosen't exist
 	 */
-	public static function getBitmapData(key:String):BitmapData
+	public static function getBitmapData(key:String, ?library:Library):BitmapData
 	{
-		var bitmap:BitmapData = null;
-		// support for any extension :3
-		var assetPath:String = getPath((Path.extension(key) == null || Path.extension(key) == '') ? '$key.png' : key, IMAGES);
-		var assetKey:String = stripLibrary(assetPath);
-		var library:String = getLibraryName(IMAGES);
-		var location:AssetLocation = checkFileLocation(assetKey, IMAGES);
+		library = NuetronAssetLibrary.getUsableLibrary(library, NuetronAssetLibrary.IMAGES_USAGE);
 
-		if (OpenFLAssets.cache.hasBitmapData((assetKey)))
+		var extension:Null<String> = (Path.extension(key) == null || Path.extension(key) == '') ? 'png' : null;
+		var assetPath:String = Assets.getPath(extension == null ? key : '$key.$extension', library);
+		var assetKey:String = Assets.stripLibrary(assetPath);
+
+		if (OpenFLAssets.cache.hasBitmapData(assetKey))
 			return OpenFLAssets.cache.getBitmapData(assetKey);
 
-		var bitmapBytes:ByteArray = null;
-		#if sys
-		if (location == FILE_SYSTEM || location == BOTH)
-			bitmapBytes = File.getBytes(assetKey);
-		#end
-		if ((location == ASSET_LIBRARY || location == BOTH) && bitmapBytes == null)
-			bitmapBytes = OpenFLAssets.getBytes(assetPath);
-		
-		if(bitmapBytes != null)
+		var bitmap:BitmapData = null;
+		var bitmapBytes:ByteArray = Assets.getBitmapBytes(assetPath, library);
+
+		if (bitmapBytes == null)
 		{
-			bitmap = BitmapData.fromBytes(bitmapBytes);
-			bitmapBytes.clear();
-			bitmapBytes = null;
+			return OpenFLAssets.cache.getBitmapData('flixel-logo');
 		}
 
-		if (bitmap != null)
-		{
-			if (bitmap.width > FlxG.bitmap.maxTextureSize || bitmap.height > FlxG.bitmap.maxTextureSize)
-				NeutronLogger.warn("The bitmap with the key of '"
-					+ assetKey
-					+ "' has a size that's larger than the device's maxTextureSize, Issues drawing the object might happen.");
+		bitmap = BitmapData.fromBytes(bitmapBytes);
+		bitmapBytes.clear();
 
-			bitmap.key = assetKey;
-			OpenFLAssets.cache.setBitmapData(assetKey, bitmap);
-		}
-
-		if (location == NONE)
+		if (bitmap.width > FlxG.bitmap.maxTextureSize || bitmap.height > FlxG.bitmap.maxTextureSize)
 		{
-			NeutronLogger.warn("Tried to load a bitmap with the key of "
+			NeutronLogger.warn("The bitmap with the key of '"
 				+ assetKey
-				+ " but it dosen't exist anywhere on the FileSystem or the Asset Library "
-				+ library
-				+ '.');
-			bitmap = OpenFLAssets.cache.getBitmapData('flixel-logo');
-			bitmap.key = 'flixel-logo';
+				+ "' has a size that's larger than the device's maxTextureSize.\nIssues drawing the object may accure.");
 		}
+
+		bitmap.key = assetKey;
+		OpenFLAssets.cache.setBitmapData(assetKey, bitmap);
 
 		return bitmap;
 	}
@@ -224,85 +157,33 @@ class Paths
 	/**
 	 * Cache a openfl `Sound` object refrence by `key`.
 	 * @param key     The name/path of the sound in `assets/sounds/` or `assets/music/`
-	 * @param library Can be either `SOUNDS` or `MUSIC`, if it's `SOUNDS` then `assets/sounds/` will be used to cache the sound, otherwise `assets/music/` is used.
+	 * @param library The library to cache the sound from.
 	 * @return        The `Sound` that has been cached, or a flixel beep sound if it dosen't exists.
 	 */
-	public static function getSound(key:String, ?library:Library = SOUNDS):Sound
+	public static function getSound(key:String, ?library:Library):Sound
 	{
-		if (library != MUSIC && library != SOUNDS)
-		{
-			NeutronLogger.warn("Tried to play a sound using the library " + library.getName() + ", defaulting to SOUNDS");
-			library = SOUNDS;
-		}
+		library = NuetronAssetLibrary.getUsableLibrary(library, NuetronAssetLibrary.AUDIO_USAGE);
 
-		var sound:Sound = null;
-		var libraryName:String = getLibraryName(library);
-		var assetPath:String = getPath('$key.ogg', library);
-		var assetKey:String = stripLibrary(assetPath);
-		var location:AssetLocation = checkFileLocation(assetKey, library);
+		var assetPath:String = Assets.getPath('$key.ogg', library);
+		var assetKey:String = Assets.stripLibrary(assetPath);
 
 		if (OpenFLAssets.cache.hasSound(assetKey))
 			return OpenFLAssets.cache.getSound(assetKey);
 
-		var soundBytes:ByteArray = null;
-		#if sys
-		if (location == FILE_SYSTEM || location == BOTH)
-			soundBytes = File.getBytes(assetKey);
-		#end
-		if ((location == ASSET_LIBRARY || location == BOTH) && soundBytes == null)
-			soundBytes = OpenFLAssets.getBytes(assetPath);
+		var soundBytes:ByteArray = Assets.getAudioBufferBytes(assetPath, library);
 
-		if(soundBytes != null)
+		if (soundBytes == null)
 		{
-			sound = Sound.fromAudioBuffer(AudioBuffer.fromBytes(soundBytes));
-			soundBytes.clear();
-			soundBytes = null;
+			return OpenFLAssets.cache.getSound('flixel-beep');
 		}
 
-		if (sound != null)
-		{
-			OpenFLAssets.cache.setSound(assetKey, sound);
-			sound.key = assetKey;
-		}
+		var sound:Sound = Sound.fromAudioBuffer(AudioBuffer.fromBytes(soundBytes));
+		soundBytes.clear();
 
-		if (location == NONE)
-		{
-			NeutronLogger.warn("Tried to load a sound with the key of "
-				+ assetKey
-				+ " but it dosen't exist anywhere on the FileSystem or the Asset Library "
-				+ libraryName
-				+ '.');
-			sound = OpenFLAssets.cache.getSound('flixel-beep');
-		}
+		OpenFLAssets.cache.setSound(assetKey, sound);
+		sound.key = assetKey;
 
 		return sound;
-	}
-
-	/**
-	 * Checks where the file precisely exists.
-	 * @param path    The path of the file to check for.
-	 * @param library The library to use when checking for the file in the OpenFL/Lime AssetLibrary.
-	 * @return        If the file exists in the OpenFL/Lime AssetLibrary, returns `ASSET_LIBRARY`. If it's in the filesystem only, returns `FILE_SYSTEM`. If both, returns `BOTH`, otherwise returns `NONE`.
-	 */
-	public static function checkFileLocation(path:String, ?library:Library):AssetLocation
-	{
-		path = stripLibrary(path);
-		var libraryName:String = getLibraryName(library);
-		var al:Bool = OpenFLAssets.exists(libraryName == null ? path : '$libraryName:$path');
-		#if sys
-		var fs:Bool = FileSystem.exists(path);
-		if (fs && al)
-			return BOTH;
-		if (!fs && al)
-			return ASSET_LIBRARY;
-		if (fs && !al)
-			return FILE_SYSTEM;
-		#else
-		if (al)
-			return ASSET_LIBRARY;
-		#end
-		NeutronLogger.note('the asset $path Couldn\'t be located in the FileSystem or the AssetLibrary ${libraryName == null ? 'default' : libraryName}');
-		return NONE;
 	}
 
 	/**
@@ -333,7 +214,8 @@ class Paths
 			}
 		}
 
-		setFallbackCache();
+		cacheFallbackAssets();
+
 		if (runGC)
 			OpenFLSystem.gc();
 	}
@@ -345,7 +227,7 @@ class Paths
 	 */
 	public static function clearSoundCache(?allSounds:Bool = false, ?runGC:Bool = true):Void
 	{
-		if(allSounds)
+		if (allSounds)
 		{
 			OpenFLAssets.cache.clearSound();
 		}
@@ -359,52 +241,22 @@ class Paths
 			for (sound in FlxG.sound.defaultMusicGroup.sounds)
 				if (!soundsToIgnore.contains(sound._sound.key))
 					soundsToIgnore.push(sound._sound.key);
-			
-			for(key in OpenFLAssets.cache.sound.keys())
+
+			for (key in OpenFLAssets.cache.sound.keys())
 			{
-				if(!soundsToIgnore.contains(key))
+				if (!soundsToIgnore.contains(key))
 					OpenFLAssets.cache.removeSound(key);
 			}
 		}
 
-		setFallbackCache();
+		cacheFallbackAssets();
+
 		if (runGC)
 			OpenFLSystem.gc();
 	}
-
-	/**
-	 * Logs the Assets Libraries available and the assets they contain, useful for debugging.
-	 */
-	public static inline function logAssetsLibraryInfo():String
-	{
-		var libs = LimeAssets.libraries;
-		var assets:Array<String> = [];
-		for (libName in libs.keys())
-			assets.push(' $libName - ${libs.get(libName).list(null)}');
-
-		var info = 'Assets Library info:' + assets.join('\n');
-		NeutronLogger.note(info);
-		return info;
-	}
-}
-
-@:dox(hide)
-enum AssetLocation
-{
-	FILE_SYSTEM;
-	ASSET_LIBRARY;
-	BOTH;
-	NONE;
-}
-
-@:dox(hide)
-enum Library
-{
-	IMAGES;
-	SOUNDS;
-	MUSIC;
-	DATA;
 }
 
 @:noCompletion @:keep @:bitmap("assets/images/logo/default.png")
-class FlixelLogo extends BitmapData {}
+class FlixelLogo extends BitmapData
+{
+}

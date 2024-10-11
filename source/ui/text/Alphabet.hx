@@ -155,11 +155,11 @@ class Alphabet extends FlxSpriteGroup
 		// if (val == CENTER)
 		// 	for (i => line in lines)
 		// 		for (char in line)
-		// 			char.y -= (maxHeight - char.height) * .5;
+		// 			char.x -= (maxWidth - widths[i]) * .5;
 		// else if (val == RIGHT)
 		// 	for (i => line in lines)
 		// 		for (char in line)
-		// 			char.y -= maxHeight - char.height;
+		// 			char.x -= maxWidth - widths[i];
 
 		if (val == CENTER)
 			for (i => line in lines)
@@ -183,6 +183,7 @@ class Alphabet extends FlxSpriteGroup
 		lines = [];
 		super.destroy();
 	}
+
 	override function setColorTransform(redMultiplier = 1.0, greenMultiplier = 1.0, blueMultiplier = 1.0, alphaMultiplier = 1.0, redOffset = 0.0,
 			greenOffset = 0.0, blueOffset = 0.0, alphaOffset = 0.0):Void
 	{
