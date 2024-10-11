@@ -52,22 +52,21 @@ class StorageUtil
 	 * Saves content to a file in the 'saves' directory.
 	 *
 	 * @param fileName The name of the file.
-	 * @param fileExtension The extension of the file.
 	 * @param fileData The content to save in the file.
+	 * @param alert Optional, if true, an alert will be shown (default is true).
 	 */
-	public static function saveContent(fileName:String = 'file', fileExtension:String = '.json',
-			fileData:String = 'You forgor to add somethin\' in yo code :3'):Void
+	public static function saveContent(fileName:String, fileData:String, ?alert:Bool = true):Void
 	{
 		try
 		{
 			if (!FileSystem.exists('saves'))
 				FileSystem.createDirectory('saves');
 
-			File.saveContent('saves/' + fileName + fileExtension, fileData);
-			FlxG.stage.window.alert(fileName + " file has been saved.", "Success!");
+			File.saveContent('saves/$fileName', fileData);
+			if (alert) Main.alertDialog('$fileName has been saved.', "Success!");
 		}
-		catch (e:Exception)
-			trace('File couldn\'t be saved. (${e.message})');
+		catch (e:haxe.Exception)
+			if (alert) Main.alertDialog('$fileName couldn\'t be saved.\n(${e.message})', "Error!") else trace('$fileName couldn\'t be saved. (${e.message})');
 	}
 
 	#if (android || doc_gen)
