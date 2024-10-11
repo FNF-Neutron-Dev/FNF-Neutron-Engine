@@ -7,7 +7,6 @@ import flixel.input.actions.FlxActionInput.FlxInputType;
 import flixel.input.actions.FlxActionInputDigital;
 import flixel.input.gamepad.FlxGamepadInputID;
 import flixel.input.keyboard.FlxKey;
-import flixel.input.mouse.FlxMouseButton.FlxMouseButtonID;
 
 @:nullSafety
 class Action extends flixel.input.actions.FlxAction
@@ -43,9 +42,6 @@ class Action extends flixel.input.actions.FlxAction
 		if (binds.inputs != null)
 			for (input in binds.inputs)
 				addInput(input);
-		if (binds.mouseButtons != null)
-			for (mouseButton in binds.mouseButtons)
-				addMouse(mouseButton);
 		#if android
 		if (binds.androidButtons != null)
 			for (androidButton in binds.androidButtons)
@@ -102,16 +98,6 @@ class Action extends flixel.input.actions.FlxAction
 	public function addKey(Key:FlxKey):Action
 	{
 		return add(new FlxActionInputDigitalKeyboard(Key, trigger));
-	}
-
-	/**
-	 * Mouse button action input
-	 * @param	ButtonID Button identifier (FlxMouseButtonID.LEFT / MIDDLE / RIGHT)
-	 * @return	This action
-	 */
-	public function addMouse(ButtonID:FlxMouseButtonID):Action
-	{
-		return add(new FlxActionInputDigitalMouse(ButtonID, trigger));
 	}
 
 	#if android

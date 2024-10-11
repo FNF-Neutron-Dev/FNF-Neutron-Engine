@@ -4,7 +4,6 @@ import backend.input.ActionInput;
 import flixel.FlxBasic;
 import flixel.input.gamepad.FlxGamepadInputID;
 import flixel.input.keyboard.FlxKey;
-import flixel.input.mouse.FlxMouseButton.FlxMouseButtonID;
 
 class Controls extends FlxBasic
 {
@@ -30,9 +29,9 @@ class Controls extends FlxBasic
 		inputs.push(UI_UP = new ActionInput("UI_UP", {keys: [FlxKey.W, FlxKey.UP]}));
 		inputs.push(UI_RIGHT = new ActionInput("UI_RIGHT", {keys: [FlxKey.D, FlxKey.RIGHT]}));
 
-		inputs.push(ACCEPT = new ActionInput("ACCEPT", {keys: [FlxKey.ENTER], gamepadButtons: [FlxGamepadInputID.A], mouseButtons: [FlxMouseButtonID.LEFT]}));
+		inputs.push(ACCEPT = new ActionInput("ACCEPT", {keys: [FlxKey.ENTER], gamepadButtons: [FlxGamepadInputID.A]}));
 		inputs.push(BACK = new ActionInput("BACK",
-			{keys: [FlxKey.ESCAPE, FlxKey.BACKSPACE], gamepadButtons: [FlxGamepadInputID.B], mouseButtons: [FlxMouseButtonID.RIGHT]}));
+			{keys: [FlxKey.ESCAPE, FlxKey.BACKSPACE], gamepadButtons: [FlxGamepadInputID.B]}));
 
 		instance = this;
 	}
