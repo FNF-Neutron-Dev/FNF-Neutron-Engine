@@ -84,6 +84,11 @@ class CrashHandler
 	}
 
 	#if cpp
+	/**
+	 * Handles critical errors in C++.
+	 * 
+	 * @param message The error message.
+	 */
 	@:dox(show)
 	@:noCompletion
 	private static function onCriticalError(message:String):Void
@@ -105,6 +110,7 @@ class CrashHandler
 	#end
 
 	#if sys
+	@:dox(hide)
 	private static function saveErrorMessage(message:String, ?criticalMessge:Bool = false):Void
 	{
 		try
