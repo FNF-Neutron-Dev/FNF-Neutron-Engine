@@ -87,7 +87,7 @@ class CrashHandler
 		#end
 
 		#if (android && !macro)
-		android.Tools.showAlertDialog("Error!", '$m\n$stackLabel', {name: 'ok', func: null});
+		android.Tools.showAlertDialog("Error!", '$m\n$stackLabel', {name: 'OK', func: null});
 		#else
 		FlxG.stage.window.alert('$m\n$stackLabel', "Error!");
 		#end
@@ -105,7 +105,7 @@ class CrashHandler
 	private static function onError(message:Dynamic):Void
 	{
 		#if (android && !macro)
-		android.Tools.showAlertDialog("Critical Error!", message, {name: 'ok', func: null});
+		android.Tools.showAlertDialog("Critical Error!", message, {name: 'OK', func: null});
 		#else
 		FlxG.stage.window.alert(message, "Critical Error!");
 		#end
