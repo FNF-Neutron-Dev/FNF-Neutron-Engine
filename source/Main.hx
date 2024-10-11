@@ -2,6 +2,7 @@ package;
 
 import backend.InitState;
 import flixel.FlxGame;
+import frontend.system.CrashHandler;
 import frontend.system.FPSCounter;
 import openfl.display.Sprite;
 
@@ -12,6 +13,7 @@ class Main extends Sprite
 
 	public function new():Void
 	{
+		CrashHandler.init();
 		super();
 
 		#if mobile

@@ -117,8 +117,8 @@
 		<haxedef name="HXCPP_STACK_LINE" />
 		<haxedef name="HXCPP_STACK_TRACE" />
 		<haxedef name="HXCPP_CATCH_SEGV" />
-		<!--<haxedef name="HXCPP_STACK_VARS" />
-		<haxedef name="HXCPP_TELEMETRY" />-->
+		<!-- <haxedef name="HXCPP_STACK_VARS" /> -->
+		<!-- <haxedef name="HXCPP_TELEMETRY" /> -->
 	</section>
 
 	<certificate path="key.keystore" password="neutronengine" alias="neutronengine" alias-password="neutronengine" if="android" unless="debug" />

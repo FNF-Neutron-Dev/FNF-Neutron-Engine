@@ -4,7 +4,6 @@ import backend.assets.AssetLibrary;
 import backend.assets.Paths;
 import backend.input.Controls;
 import backend.music.Conductor;
-import frontend.system.CrashHandler;
 import frontend.system.FPSCounter;
 import states.menus.TitleState;
 import states.test.ConductorPrototype;
@@ -16,7 +15,6 @@ class InitState extends flixel.FlxState
 	{
 		super.create();
 
-		CrashHandler.init();
 		AssetLibrary.init();
 		Paths.cacheFallbackAssets();
 		FlxG.plugins.addPlugin(new Controls());

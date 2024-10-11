@@ -1,8 +1,8 @@
 package states.menus;
 
-import flixel.FlxState;
+import backend.GameState;
 
-class MainMenuState extends FlxState
+class MainMenuState extends GameState
 {
 	override public function create():Void
 	{
