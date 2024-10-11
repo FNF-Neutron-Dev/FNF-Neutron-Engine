@@ -117,6 +117,7 @@
 		<haxedef name="HXCPP_CHECK_POINTER" />
 		<haxedef name="HXCPP_STACK_LINE" />
 		<haxedef name="HXCPP_STACK_TRACE" />
+		<haxedef name="HXCPP_CATCH_SEGV" />
 	</section>
 
 	<section if="android">
@@ -129,6 +130,7 @@
 	<haxeflag name="--macro" value="include('my.pack')" />
 
 	<!-- _________________________________ Custom _______________________________ -->
+
 	<source path="openfl" if="SHADOW_OPENFL_CLASSES"/>
 	<haxeflag name="--macro" value="addMetadata('@:build(macros.AssetLibraryMacro.build())', 'backend.assets.AssetLibrary')" />
 
