@@ -32,7 +32,7 @@ class Main extends Sprite
 	public static function alertDialog(message:String, title:String)
 	{
 		#if (android && !macro)
-		android.Tools.showAlertDialog(title, message, {name: 'ok', func: null});
+		android.Tools.showAlertDialog(title, message, {name: 'OK', func: null});
 		#else
 		FlxG.stage.window.alert(message, title);
 		#end
