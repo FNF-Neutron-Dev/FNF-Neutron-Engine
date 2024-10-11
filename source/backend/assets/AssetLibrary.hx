@@ -10,15 +10,24 @@ class AssetLibrary
 	// to add your own library here just define it like the others inside of Project.xml then the macro will do the magic~~
 	public static final DEFAULT:Library = new Library("default", null, true);
 
+	/**
+	 * A Map that specifies the default usage of each library.
+	 */
+	public static var librariesDefault:Map<String, Array<Library>>;
+
 	// perhaps i should changes these into an abstract?
 	public static final IMAGES_USAGE:String = 'images';
 	public static final AUDIO_USAGE:String = 'sounds';
 	public static final DATA_USAGE:String = 'data';
 
-	/**
-	 * A Map that specifies the default usage of each library.
-	 */
-	public static final librariesDefault:Map<String, Array<Library>> = [IMAGES_USAGE => [IMAGES], AUDIO_USAGE => [SOUNDS, MUSIC], DATA_USAGE => [DATA]];
+	public static function init():Void
+	{
+		for (callback in Library.initCallBacks)
+			callback();
+		Library.initCallBacks = null;
+
+		librariesDefault = [IMAGES_USAGE => [IMAGES], AUDIO_USAGE => [SOUNDS, MUSIC], DATA_USAGE => [DATA]];
+	}
 
 	/**
 	 * Helper function to get a appropriat library for your usage.
@@ -48,7 +57,7 @@ class AssetLibrary
 	public static function list():Array<Library>
 	{
 		var classFields = Type.getClassFields(AssetLibrary);
-		classFields.filter((field) -> Std.isOfType(Reflect.field(AssetLibrary, field), Library));
+		classFields = classFields.filter((field) -> Std.isOfType(Reflect.field(AssetLibrary, field), Library));
 		return [for (field in classFields) Reflect.field(AssetLibrary, field)];
 	}
 }
@@ -58,7 +67,7 @@ class Library
 	public var library:LimeAssetLibrary;
 	public var name:String;
 
-	@:allow(Main)
+	@:allow(backend.assets.AssetLibrary)
 	private static var initCallBacks:Array<Void->Void> = [];
 
 	public function new(name:String, ?library:LimeAssetLibrary, ?addInitCallBack:Bool = false)

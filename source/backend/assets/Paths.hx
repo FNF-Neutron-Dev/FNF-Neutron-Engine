@@ -55,9 +55,9 @@ class Paths
 	 * @param key The name/path of the image in `assets/images/`
 	 * @return    A `FlxGraphic` with the bitmap in the path of `key`.
 	 */
-	public static function graphic(key:String):FlxGraphic
+	public static function graphic(key:String, ?library:Library):FlxGraphic
 	{
-		var bitmap:BitmapData = getBitmapData(key);
+		var bitmap:BitmapData = getBitmapData(key, library);
 		var assetKey:String = bitmap.key;
 
 		if (FlxG.bitmap.checkCache(assetKey))
@@ -106,9 +106,9 @@ class Paths
 	 * @param key The name/path of the spritesheet in `assets/images/`
 	 * @return    A `FlxAtlasFrames` with the frames of `key`.
 	 */
-	public static function getSparrowAtlas(key:String):FlxAtlasFrames
+	public static function getSparrowAtlas(key:String, ?library:Library):FlxAtlasFrames
 	{
-		var graphic:FlxGraphic = graphic(key);
+		var graphic:FlxGraphic = graphic(key, library);
 		var xml:String = getContent(key, "xml", Assets.getAssetLibrary(graphic.key));
 
 		return FlxAtlasFrames.fromSparrow(graphic, xml);

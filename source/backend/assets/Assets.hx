@@ -74,7 +74,7 @@ class Assets
 		{
 			#if sys
 			case FILE_SYSTEM | BOTH:
-				bitmapBytes = File.getBytes(path);
+				bitmapBytes = File.getBytes(assetKey);
 			#end
 			case ASSET_LIBRARY:
 				bitmapBytes = OpenFLAssets.getBytes(path);
@@ -105,7 +105,7 @@ class Assets
 		{
 			#if sys
 			case FILE_SYSTEM | BOTH:
-				audioBufferBytes = File.getBytes(path);
+				audioBufferBytes = File.getBytes(assetKey);
 			#end
 			case ASSET_LIBRARY:
 				audioBufferBytes = OpenFLAssets.getBytes(path);

@@ -28,6 +28,7 @@ class Main extends Sprite
 		#if cpp
 		cpp.vm.Gc.enable(true);
 		#end
+		AssetLibrary.init();
 		Paths.cacheFallbackAssets();
 
 		addChild(new FlxGame(1280, 720, #if CONDUCTOR_PORTOTYPE ConductorPrototype #else TitleState #end));
@@ -43,9 +44,5 @@ class Main extends Sprite
 		#if android
 		FlxG.android.preventDefaultKeys = [BACK];
 		#end
-
-		for (callback in Library.initCallBacks)
-			callback();
-		Library.initCallBacks = null;
 	}
 }
