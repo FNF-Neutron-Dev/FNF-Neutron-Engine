@@ -119,7 +119,7 @@ class CrashHandler
 				FileSystem.createDirectory('logs');
 
 			File.saveContent('logs/'
-				+ '${criticalMessge ? 'Critical Error' : 'Error'} - '
+				+ '${criticalMessage ? 'Critical Error' : 'Error'} - '
 				+ Date.now().toString().replace(' ', '-').replace(':', "'")
 				+ '.txt', message);
 		}
