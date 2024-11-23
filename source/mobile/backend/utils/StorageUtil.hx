@@ -1,14 +1,14 @@
 package mobile.backend.utils;
 
-import haxe.io.Path;
 import haxe.Exception;
+import haxe.io.Path;
 #if (android || doc_gen)
-import android.os.Build.VERSION as AndroidVersion;
-import android.os.Build.VERSION_CODES as AndroidVersionCode;
-import android.content.Context as AndroidContext;
-import android.os.Environment as AndroidEnvironment;
 import android.Permissions as AndroidPermissions;
 import android.Settings as AndroidSettings;
+import android.content.Context as AndroidContext;
+import android.os.Build.VERSION as AndroidVersion;
+import android.os.Build.VERSION_CODES as AndroidVersionCode;
+import android.os.Environment as AndroidEnvironment;
 #end
 
 /**
@@ -92,12 +92,12 @@ class StorageUtil
 
 		try
 		{
-			if (!FileSystem.exists(SUtil.getStorageDirectory()))
-				FileSystem.createDirectory(SUtil.getStorageDirectory());
+			if (!FileSystem.exists(StorageUtil.getStorageDirectory()))
+				FileSystem.createDirectory(StorageUtil.getStorageDirectory());
 		}
 		catch (e:Dynamic)
 		{
-			Main.alertDialog('Please create folder to\n' + SUtil.getStorageDirectory(true) + '\nPress OK to close the game', 'Error!');
+			Main.alertDialog('Please create folder to\n' + StorageUtil.getStorageDirectory(true) + '\nPress OK to close the game', 'Error!');
 			LimeSystem.exit(1);
 		}
 	}

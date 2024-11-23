@@ -17,8 +17,8 @@ class InitState extends flixel.FlxState
 
 		AssetLibrary.init();
 		Paths.cacheFallbackAssets();
-		FlxG.plugins.addPlugin(new Controls());
-		FlxG.plugins.addPlugin(new Conductor(1, true));
+		FlxG.plugins.add(new Controls());
+		FlxG.plugins.add(new Conductor(1, true));
 		Main.fpsCounter = new FPSCounter(10, 5, 0xFFFFFF);
 
 		FlxG.signals.preStateCreate.add(state -> @:privateAccess

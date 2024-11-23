@@ -13,6 +13,6 @@ typedef BindsList =
 	@:optional var gamepadButtons:Array<FlxGamepadInputID>;
 	@:optional var inputs:Array<IFlxInput>;
 	#if android
-	@:optional var androidButtons:Array<FlxKey>;
+	@:optional var androidButtons:Array<FlxAndroidKey>;
 	#end
 }
