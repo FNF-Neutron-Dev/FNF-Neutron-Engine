@@ -10,10 +10,13 @@
 --cpp docs-bin
 
 --macro flixel.system.macros.FlxDefines.run()
+--macro addMetadata('@:build(macros.AssetLibraryMacro.build())', 'backend.assets.AssetLibrary')
 
 --macro include('backend')
 --macro include('frontend')
+--macro include('macros')
 --macro include('mobile')
+--macro include('openfl')
 --macro include('states')
 --macro include('ui')
 
